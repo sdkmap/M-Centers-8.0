@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -22,6 +23,9 @@ namespace MCenters
         public BindingExpression EnableInstall;
 
 
+        public static MediaElement RickRoll { get; set; }
+        public static bool IsDoingRickRoll { get; set; }
+        public static bool IsRickRollPaused { get; internal set; }
 
         public MainWindow()
         {
@@ -39,6 +43,7 @@ namespace MCenters
             {
                 CurrentMode = ErrorTypeEnum.ReportDll
             };
+            RickRoll = rickRoller;
             settingsButton.ConnectedImage = settingsLogo;
             installButton.ConnectedImage = installIcon;
             uninstallButton.ConnectedImage = uninstallIcon;
@@ -56,12 +61,14 @@ namespace MCenters
 
             rickRoller.MediaEnded += (sender, e) =>
             {
+                if (IsRickRollPaused) return;
+                if (++i >= mediaFiles.Length) i = 0;
                 // When media ends, restart playback from the beginning
                 rickRoller.Position = time;
-                rickRoller.Source = new Uri(mediaFiles[i++], UriKind.Relative);
+                rickRoller.Source = new Uri(mediaFiles[i], UriKind.Relative);
                 try
                 {
-                    if (i == mediaFiles.Length) i = 0;
+                    
                     rickRoller.Play();
                 }
                 catch (InvalidOperationException)
@@ -71,6 +78,9 @@ namespace MCenters
                 }
             };
             rickRoller.Play();
+            IsDoingRickRoll = true;
+            IsRickRollPaused = false;
+            
         }
 
 

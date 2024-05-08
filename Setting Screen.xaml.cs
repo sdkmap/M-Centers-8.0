@@ -31,7 +31,7 @@ namespace MCenters
         {
 
 
-            Screens.Window.Content = Screens.MainScreen;
+            Screens.SetScreen(Screens.MainScreen);
         }
 
 
@@ -95,7 +95,7 @@ namespace MCenters
 
         private void YoutubeButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenBrowser("https://www.youtube.com/c/tinedpakgamer");
+            OpenBrowser("https://www.youtube.com/@tinedpakgamer");
         }
 
 

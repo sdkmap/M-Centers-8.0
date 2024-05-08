@@ -85,7 +85,7 @@ namespace MCenters
         {
 
 
-            Screens.Window.Content = Screens.MainScreen;
+            Screens.SetScreen(Screens.MainScreen);
         }
 
 
@@ -160,7 +160,7 @@ namespace MCenters
                     Screens.DllErrorScreen.ErrorTitle = "Unsupported Version " + k;
                     Screens.DllErrorScreen.ErrorSubTitle = "";
                     Screens.DllErrorScreen.ErrorDescription = "MCenters currently does not support your version of Windows.\nYou can retry, if you think it was a network issue.\nIf this is not a network issue then hit Submit Dlls to report your version to MCenters";
-                    Screens.Window.Content = Screens.DllErrorScreen;
+                    Screens.SetScreen(Screens.DllErrorScreen);
 
                 });
                 Version = k;
@@ -176,7 +176,7 @@ namespace MCenters
                         {
                             Status.Text = "Waiting to Start";
                             progressRing.Value = 0;
-                            Screens.Window.Content = Screens.InstallScreen;
+                            Screens.SetScreen(Screens.InstallScreen);
                             Screens.DllErrorScreen.CopyClicked -= DllErrorScreen_CopyClicked;
                             Screens.DllErrorScreen.RetryClicked -= DllErrorScreen_RetryClicked;
                             Screens.DllErrorScreen.CancelClicked -= DllErrorScreen_CancelClicked;
@@ -190,7 +190,7 @@ namespace MCenters
                         {
                             Status.Text = "Waiting to Start";
                             progressRing.Value = 0;
-                            Screens.Window.Content = Screens.MainScreen;
+                            Screens.SetScreen(Screens.MainScreen);
                             Screens.DllErrorScreen.CopyClicked -= DllErrorScreen_CopyClicked;
                             Screens.DllErrorScreen.RetryClicked -= DllErrorScreen_RetryClicked;
                             Screens.DllErrorScreen.CancelClicked -= DllErrorScreen_CancelClicked;
@@ -272,7 +272,7 @@ namespace MCenters
                     Screens.ErrorScreen.RemoveRetryHandles();
                     Screens.ErrorScreen.RetryClicked += RetyFormSend;
                     Screens.ErrorScreen.CancelClicked += CancelPostRequest;
-                    Screens.Window.Content = Screens.ErrorScreen;
+                    Screens.SetScreen(Screens.ErrorScreen);
                 }
 
 
