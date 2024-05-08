@@ -193,9 +193,9 @@
     <Resource Include="images\title_logo.png" />
     <Resource Include="images\youtube_icon.png" />
     <Resource Include="images\youtube 2.png" />
-    <None Include="images\rick_roll">
+    <Content Include="images\rick_roll.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">

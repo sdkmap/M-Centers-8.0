@@ -95,14 +95,14 @@ namespace MCenters
 
         private void YoutubeButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenBrowser("https://www.youtube.com/c/MCentres99");
+            OpenBrowser("https://www.youtube.com/c/tinedpakgamer");
         }
 
 
 
         private void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenBrowser("https://discord.gg/qxm2SuwsXa");
+            OpenBrowser("https://discord.gg/sU8qSdP5wP");
         }
 
 
