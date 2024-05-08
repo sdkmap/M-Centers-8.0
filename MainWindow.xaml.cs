@@ -1,0 +1,97 @@
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Resources;
+
+namespace MCenters
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    /// 
+
+    
+    public partial class MainWindow
+    {
+        public BindingExpression EnableUninstall;
+        public BindingExpression EnableInstall;
+
+
+
+        public MainWindow()
+        {
+            Screens.InstallScreen = new InstallScreen();
+            Screens.UninstallScreen = new InstallScreen
+            {
+                Mode = InstallScreenModeEnum.Uninstall
+            };
+            InitializeComponent();
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
+            Screens.SettingsScreen = new Setting_Screen();
+            Screens.MainScreen = this.Content;
+            Screens.ErrorScreen = new ErrorScreen();
+            Screens.DllErrorScreen = new ErrorScreen
+            {
+                CurrentMode = ErrorTypeEnum.ReportDll
+            };
+            settingsButton.ConnectedImage = settingsLogo;
+            installButton.ConnectedImage = installIcon;
+            uninstallButton.ConnectedImage = uninstallIcon;
+            Screens.Window = this;
+
+            EnableUninstall = uninstallButton.GetBindingExpression(IsEnabledProperty);
+            EnableInstall = installButton.GetBindingExpression(IsEnabledProperty);
+            var mediaFiles = Directory.GetFiles("images/");
+            mediaFiles = mediaFiles.Where((file, index) => file.EndsWith(".mp4") || file.EndsWith(".gif")).ToArray();
+            if (mediaFiles.Length == 0) return;
+
+            rickRoller.Source = new Uri(mediaFiles[0], UriKind.Relative);
+            var time = new TimeSpan(0, 0, 0, 0, 1);
+            int i = 1;
+
+            rickRoller.MediaEnded += (sender, e) =>
+            {
+                // When media ends, restart playback from the beginning
+                rickRoller.Position = time;
+                rickRoller.Source = new Uri(mediaFiles[i++], UriKind.Relative);
+                try
+                {
+                    if (i == mediaFiles.Length) i = 0;
+                    rickRoller.Play();
+                }
+                catch (InvalidOperationException)
+                {
+
+
+                }
+            };
+            rickRoller.Play();
+        }
+
+
+
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Content = Screens.SettingsScreen;
+        }
+
+
+
+        private void InstallButton_Click(object sender, RoutedEventArgs e)
+        {
+            Content = Screens.InstallScreen;
+        }
+
+        private void UninstallButton_Click(object sender, RoutedEventArgs e)
+        {
+            Content = Screens.UninstallScreen;
+        }
+
+    }
+}

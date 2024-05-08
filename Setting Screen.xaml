@@ -1,0 +1,133 @@
+﻿<Page x:Class="MCenters.Setting_Screen"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MCenters"
+        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Setting_Screen" Width="800" Height="450">
+    <Page.Resources>
+        <local:Setting_Screen x:Key="myDataSource"/>
+    </Page.Resources>
+
+    <Grid fw:PointerTracker.Enabled="True" Width="800" Height="450">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24*"/>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="179*"/>
+            <RowDefinition Height="104*"/>
+            <RowDefinition Height="111*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="42*"/>
+            <ColumnDefinition Width="117*"/>
+            <ColumnDefinition Width="41*"/>
+        </Grid.ColumnDefinitions>
+        <local:HoverableButton OpacityMask="Magenta"   x:Name="agreementButton"  fw:RevealElement.BorderRadius="10"  Content="Agreement" Margin="14,16,306,33" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="4" Grid.Column="1" Click="AgreementButton_Click">
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <local:HoverableButton OpacityMask="Magenta" x:Name="policyButton" fw:RevealElement.BorderRadius="10" Content="Privacy Policy" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="4" Margin="10,16,10,33" Click="PolicyButton_Click">
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <local:HoverableButton OpacityMask="Magenta" x:Name="discordButton" fw:RevealElement.BorderRadius="10" Content="Discord" Margin="302,16,18,33" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="4" Grid.Column="1" Click="DiscordButton_Click" >
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <local:HoverableButton OpacityMask="Magenta" x:Name="youtubeButton" fw:RevealElement.BorderRadius="10" Content="Youtube" Margin="6,16,10,33" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="4" Grid.Column="2" Click="YoutubeButton_Click" >
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <local:HoverableButton OpacityMask="Magenta" x:Name="errorButton" fw:RevealElement.BorderRadius="10"  Content="Error Records" Margin="452,2,33,6" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Click="ErrorButton_Click">
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <local:HoverableButton OpacityMask="Magenta" x:Name="dllButton" fw:RevealElement.BorderRadius="10" Content="Open Dlls folder" Margin="33,2,456,6" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="3" Grid.ColumnSpan="2" Click="DllButton_Click">
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <CheckBox x:Name="thirdPartyCheckBox" Content="Enable third party providers" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="18" Width="180" Style="{DynamicResource MaterialDesignAccentCheckBox}" Grid.Row="1" Grid.ColumnSpan="2" IsEnabled="False"/>
+
+        <fw:AcrylicPanel x:Name="thirdPartyBox" Margin="60,5,69,8" TintOpacity="10" Background="#FFDED3D3" Style="{DynamicResource AcrylicContentControlStyle}" Grid.Row="2" Grid.ColumnSpan="2" >
+            <fw:AcrylicPanel.BindingGroup>
+                <BindingGroup/>
+            </fw:AcrylicPanel.BindingGroup>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="361*"/>
+                    <ColumnDefinition Width="143*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="57*"/>
+                    <RowDefinition Height="100*"/>
+                    <RowDefinition Height="8*"/>
+                </Grid.RowDefinitions>
+                <TextBlock HorizontalAlignment="Left" Height="30" Margin="10,10,0,0" Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Top" Width="314"/>
+                <local:HoverableButton OpacityMask="Magenta" x:Name="addButton" fw:RevealElement.BorderRadius="10" Content="Add" HorizontalAlignment="Left" Height="48" Margin="18,10,0,0" VerticalAlignment="Top" Width="115" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.RowSpan="2" Grid.Column="1" Click="AddButton_Click">
+                    <fw:RevealElement.MouseOverBackground>
+                        <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+                    </fw:RevealElement.MouseOverBackground>
+                    <Button.Background>
+                        <SolidColorBrush Color="#80808080" Opacity="0"/>
+                    </Button.Background>
+                </local:HoverableButton>
+                <local:HoverableButton OpacityMask="Magenta" x:Name="viewButton" fw:RevealElement.BorderRadius="10" Content="View Providers" HorizontalAlignment="Left" Height="81" Margin="16,18,0,0" VerticalAlignment="Top" Width="151" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="1" Click="ViewButton_Click" >
+                    <fw:RevealElement.MouseOverBackground>
+                        <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+                    </fw:RevealElement.MouseOverBackground>
+                    <Button.Background>
+                        <SolidColorBrush Color="#80808080" Opacity="0"/>
+                    </Button.Background>
+                </local:HoverableButton>
+                <Image x:Name="addIcon" Margin="20,17,10,25" Source="/images/add_icon.png" IsHitTestVisible="False" Grid.Column="1" />
+                <Image x:Name="viewIcon" Margin="64,26,242,23" Source="/images/view_providers.png" IsHitTestVisible="False" Grid.Row="1"/>
+            </Grid>
+        </fw:AcrylicPanel>
+        <GridSplitter HorizontalAlignment="Left" Height="3" VerticalAlignment="Top" Width="800" Style="{DynamicResource MaterialDesignGridSplitter}" Grid.Row="4" Grid.ColumnSpan="3" Margin="10,5,0,0"/>
+        <Image x:Name="dllIcon" Margin="61,10,19,28" Source="/images/dll_folder_icon.png" RenderTransformOrigin="0.5,0.9" IsHitTestVisible="False" Grid.Row="3"/>
+        <Image x:Name="errorIcon" Margin="15,10,61,29" Source="/images/error_records_icon.png" IsHitTestVisible="False" Grid.Row="3" Grid.Column="2"/>
+        <Image x:Name="policyIcon" Margin="61,27,58,60" Source="/images/privacy_policy_icon.png" IsHitTestVisible="False" Grid.Row="4"/>
+        <Image x:Name="agreementIcon" Margin="65,27,352,60" Source="/images/agreement_icon.png" IsHitTestVisible="False" Grid.Row="4" Grid.Column="1"/>
+        <Image x:Name="youtubeIcon" Margin="54,27,61,60" Source="/images/youtube_icon.png" IsHitTestVisible="False" StretchDirection="DownOnly" Stretch="Uniform" Grid.Row="4" Grid.Column="2"/>
+        <Image x:Name="discordIcon" Margin="351,27,66,60" Source="/images/discord_icon.png" IsHitTestVisible="False" Stretch="Uniform" Grid.Row="4" Grid.Column="1"/>
+        <local:HoverableButton OpacityMask="Magenta" x:Name="backButton" fw:RevealElement.BorderRadius="10"  Content="Back" Margin="58,15,10,154" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Column="2" Grid.RowSpan="3" Click="BackButton_Click">
+            <fw:RevealElement.MouseOverBackground>
+                <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+            </fw:RevealElement.MouseOverBackground>
+            <Button.Background>
+                <SolidColorBrush Color="#80808080" Opacity="0"/>
+            </Button.Background>
+        </local:HoverableButton>
+        <Image x:Name="backIcon" Margin="78,21,28,178" Source="/images/back_icon.png" IsHitTestVisible="False" Grid.Column="2" Grid.RowSpan="3"/>
+
+    </Grid>
+</Page>
