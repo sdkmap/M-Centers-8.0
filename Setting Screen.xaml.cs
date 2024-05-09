@@ -19,7 +19,7 @@ namespace MCenters
             addButton.ConnectedImage = addIcon;
             viewButton.ConnectedImage = viewIcon;
             dllButton.ConnectedImage = dllIcon;
-            errorButton.ConnectedImage = errorIcon;
+            logsFolderButton.ConnectedImage = logsFolderIcon;
             youtubeButton.ConnectedImage = youtubeIcon;
             discordButton.ConnectedImage = discordIcon;
             agreementButton.ConnectedImage = agreementIcon;

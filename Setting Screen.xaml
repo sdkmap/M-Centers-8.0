@@ -58,7 +58,7 @@
                 <SolidColorBrush Color="#80808080" Opacity="0"/>
             </Button.Background>
         </local:HoverableButton>
-        <local:HoverableButton OpacityMask="Magenta" x:Name="errorButton" fw:RevealElement.BorderRadius="10"  Content="Error Records" Margin="452,2,33,6" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Click="ErrorButton_Click">
+        <local:HoverableButton OpacityMask="Magenta" x:Name="logsFolderButton" fw:RevealElement.BorderRadius="10"  Content="Logs Folder" Margin="452,2,33,6" Style="{DynamicResource ButtonRoundAccentRevealStyle}" VerticalContentAlignment="Bottom" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Click="ErrorButton_Click">
             <fw:RevealElement.MouseOverBackground>
                 <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
             </fw:RevealElement.MouseOverBackground>
@@ -114,7 +114,7 @@
         </fw:AcrylicPanel>
         <GridSplitter HorizontalAlignment="Left" Height="3" VerticalAlignment="Top" Width="800" Style="{DynamicResource MaterialDesignGridSplitter}" Grid.Row="4" Grid.ColumnSpan="3" Margin="10,5,0,0"/>
         <Image x:Name="dllIcon" Margin="61,10,19,28" Source="/images/dll_folder_icon.png" RenderTransformOrigin="0.5,0.9" IsHitTestVisible="False" Grid.Row="3"/>
-        <Image x:Name="errorIcon" Margin="15,10,61,29" Source="/images/error_records_icon.png" IsHitTestVisible="False" Grid.Row="3" Grid.Column="2"/>
+        <Image x:Name="logsFolderIcon" Margin="15,10,61,29" Source="/images/error_records_icon.png" IsHitTestVisible="False" Grid.Row="3" Grid.Column="2"/>
         <Image x:Name="policyIcon" Margin="61,27,58,60" Source="/images/privacy_policy_icon.png" IsHitTestVisible="False" Grid.Row="4"/>
         <Image x:Name="agreementIcon" Margin="65,27,352,60" Source="/images/agreement_icon.png" IsHitTestVisible="False" Grid.Row="4" Grid.Column="1"/>
         <Image x:Name="youtubeIcon" Margin="54,27,61,60" Source="/images/youtube_icon.png" IsHitTestVisible="False" StretchDirection="DownOnly" Stretch="Uniform" Grid.Row="4" Grid.Column="2"/>

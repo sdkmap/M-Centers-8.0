@@ -9,15 +9,19 @@
         
         xmlns:local="clr-namespace:MCenters"
         mc:Ignorable="d"
-        Title="M Centers 4.0" Height="450" Width="800" TintColor="#FFD3D3D3" TitleBarMode="Extend" AcrylicWindowStyle="NoIcon" TintOpacity="0.1" FallbackColor="DarkGray"
-              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Title="M Centers 4.0"
+             Height="450" Width="800" TintColor="#FFD3D3D3" TitleBarMode="Extend" AcrylicWindowStyle="NoIcon" TintOpacity="0.1"
+                  
+          
+              
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}" Effect="{DynamicResource MaterialDesignShadowDepth3}" AllowsTransparency="True" WindowStyle="None" ResizeMode="CanMinimize"  
                   
-                  >
+          TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                >
     <fw:AcrylicWindow.Background>
         <SolidColorBrush Color="#FFFAFAFA" Opacity="0.01"/>
     </fw:AcrylicWindow.Background>
