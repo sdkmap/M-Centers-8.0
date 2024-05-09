@@ -59,7 +59,7 @@ namespace MCenters
 
         private void ErrorButton_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("explorer.exe", Methods.Method.baseLogPath);
+            Process.Start("explorer.exe", Methods.Method.LogDirectory);
         }
 
 

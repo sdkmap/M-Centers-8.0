@@ -35,6 +35,7 @@ namespace MCenters
                 Mode = InstallScreenModeEnum.Uninstall
             };
             InitializeComponent();
+            Methods.Method.LogFileName = DateTime.Now.ToString("dddd_d_MMMM_yyyy hh_mm_ss_tt").Replace(':', '_') + ".txt";
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
             Screens.SettingsScreen = new Setting_Screen();
             Screens.MainScreen = this.Content;

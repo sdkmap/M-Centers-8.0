@@ -8,19 +8,7 @@ using System.Text;
 
 namespace MCenters
 {
-    class MCentersFileStream : FileStream
-    {
-        public MCentersFileStream(string path, FileMode mode) : base(path, mode)
-        {
-
-        }
-
-        public void Write(byte[] array)
-        {
-            base.Write(array, 0, array.Length);
-        }
-    }
-    class Methods
+       class Methods
     {
         public class ProgressEventArgs : EventArgs
         {
@@ -48,7 +36,10 @@ namespace MCenters
             }
 
             public MCentersFileStream logWriter;
-            public static string CommonLog = "C:\\ProgramData\\MCenters\\Logs\\Logs.txt";
+            public static string CommonLog = "C:\\ProgramData\\MCenters\\Logs\\";
+
+            
+            public static string LogFileName="log.txt";
             public static MCentersFileStream CommonLogWriter;
             public string LogPath { get; set; }
             public static string Dllx64URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x64/Windows.ApplicationModel.Store.dll";
@@ -56,7 +47,7 @@ namespace MCenters
             public static string Dllx86URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x86/Windows.ApplicationModel.Store.dll";
 
             public static WebClient client = new WebClient();
-            public static string baseLogPath = "C:\\ProgramData\\MCenters\\Logs";
+            public static string LogDirectory = "C:\\ProgramData\\MCenters\\Logs\\";
             public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
             public static string baseExePath = "C:\\ProgramData\\MCenters\\Methods\\Exe";
             public static string Dllx64 = "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll";
@@ -136,7 +127,7 @@ namespace MCenters
             }
             static void Uninstall(string path, string cmd)
             {
-                CommonLogWriter = new MCentersFileStream(CommonLog, FileMode.Append);
+                CommonLogWriter = new MCentersFileStream(CommonLog+LogFileName, FileMode.Append);
 
                 CommonLogWriter.Write(Encoding.ASCII.GetBytes("Started Operation: \tRestoring " + cmd));
                 var p = new Process
@@ -166,13 +157,18 @@ namespace MCenters
             {
 
                 ReportProgress("Starting Mod Installation " + DllVersion, 16.66);
-                if (!Directory.Exists(baseLogPath))
-                    Directory.CreateDirectory(baseLogPath);
-                LogPath = baseLogPath + "\\" + DateTime.Now.Hour.ToString() + " " + DateTime.Now.Minute.ToString() + ".txt";
-                if (File.Exists(LogPath))
-                    File.Delete(LogPath);
-                logWriter = new MCentersFileStream(LogPath, FileMode.Append);
-
+                if (!Directory.Exists(LogDirectory))
+                    Directory.CreateDirectory(LogDirectory);
+                logRetry:;
+                LogPath = LogDirectory + LogFileName;
+                try
+                {
+                    logWriter = new MCentersFileStream(LogPath, FileMode.Append);
+                }
+                catch(IOException) {
+                    LogFileName = DateTime.Now.ToString("dddd_d_MMMM_yyyy hh_mm_ss_tt").Replace(':','_') + ".txt";
+                    goto logRetry;
+                }
                 Version = DllVersion;
                 if (Directory.Exists(baseDllPath))
                 {
@@ -201,7 +197,7 @@ namespace MCenters
             public static new bool IsAvailable(string version)
             {
                 ReportProgress("Checking  Mod Support for " + version, 8.33);
-                CommonLogWriter = new MCentersFileStream(CommonLog, FileMode.Append);
+                CommonLogWriter = new MCentersFileStream(CommonLog+LogFileName, FileMode.Append);
 
                 CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation:  Is Dll mode available for " + version));
                 if (Directory.Exists(baseDllPath))
@@ -281,9 +277,9 @@ namespace MCenters
             {
 
                 ReportProgress("Fetching System Dll version", 0);
-                if (!Directory.Exists(baseLogPath))
-                    Directory.CreateDirectory(baseLogPath);
-                CommonLogWriter = new MCentersFileStream(CommonLog, FileMode.Append);
+                if (!Directory.Exists(LogDirectory))
+                    Directory.CreateDirectory(LogDirectory);
+                CommonLogWriter = new MCentersFileStream(CommonLog + LogFileName, FileMode.Append);
 
                 CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation:  Checking Version of System Dlls "));
                 FileVersionInfo versionInfo;

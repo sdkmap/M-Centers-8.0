@@ -1,5 +1,6 @@
 ﻿using System.Windows.Data;
 using System;
+using System.IO;
 
 namespace MCenters
 {
@@ -23,4 +24,18 @@ namespace MCenters
             return null;
         }
     }
+
+    class MCentersFileStream : FileStream
+    {
+        public MCentersFileStream(string path, FileMode mode) : base(path, mode)
+        {
+
+        }
+
+        public void Write(byte[] array)
+        {
+            base.Write(array, 0, array.Length);
+        }
+    }
+
 }
