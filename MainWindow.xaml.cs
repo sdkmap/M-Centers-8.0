@@ -49,6 +49,7 @@ namespace MCenters
             installButton.ConnectedImage = installIcon;
             uninstallButton.ConnectedImage = uninstallIcon;
             Screens.Window = this;
+            if (!Directory.Exists(Methods.Method.ClipboardFolder)) Directory.CreateDirectory(Methods.Method.ClipboardFolder);
 
             EnableUninstall = uninstallButton.GetBindingExpression(IsEnabledProperty);
             EnableInstall = installButton.GetBindingExpression(IsEnabledProperty);

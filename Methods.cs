@@ -48,11 +48,14 @@ namespace MCenters
 
             public static WebClient client = new WebClient();
             public static string LogDirectory = "C:\\ProgramData\\MCenters\\Logs\\";
+            public static string ClipboardFolder = "C:\\ProgramData\\MCenters\\Clipboard\\";
             public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
             public static string baseExePath = "C:\\ProgramData\\MCenters\\Methods\\Exe";
             public static string Dllx64 = "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll";
             public static string Dllx86 = "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll";
             public string Version { get; set; }
+
+
             public static bool IsUsable()
             {
 

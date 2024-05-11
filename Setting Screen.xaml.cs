@@ -63,46 +63,19 @@ namespace MCenters
         }
 
 
-        public static void OpenBrowser(string url)
-        {
-            try
-            {
-                Process.Start(url);
-            }
-            catch
-            {
-                // hack because of this: https://github.com/dotnet/corefx/issues/10361
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", url);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", url);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
+        
 
 
         private void YoutubeButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenBrowser("https://www.youtube.com/@tinedpakgamer");
+            Functions.OpenBrowser("https://www.youtube.com/@tinedpakgamer");
         }
 
 
 
         private void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenBrowser("https://discord.gg/sU8qSdP5wP");
+            Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
         }
 
 

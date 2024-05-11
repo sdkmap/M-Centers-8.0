@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -208,7 +210,7 @@ namespace MCenters
 
         }
         string Version;
-        
+
         ErrorScreenResultEnum response = ErrorScreenResultEnum.pending;
         private void DllErrorScreen_CancelClicked(object sender, EventArgs e)
         {
@@ -221,63 +223,70 @@ namespace MCenters
         }
         async Task PostData()
         {
-            using (HttpClient client = new HttpClient())
+
+            StringCollection files = new StringCollection();
+
+
+            if (File.Exists(Methods.Method.Dllx64))
             {
-                MultipartFormDataContent g = new MultipartFormDataContent
+                var fileName = $"{Version} x64.dll";
+                fileName = Path.Combine(Methods.Method.ClipboardFolder, fileName);
+
+
+                if (File.Exists(fileName))
                 {
-                    { new ByteArrayContent(Encoding.ASCII.GetBytes($"Unsupported Version **{Version}**")), "content" }
-                };
-                if (File.Exists(Methods.Method.Dllx64))
-                {
-                    var k = File.ReadAllBytes(Methods.Method.Dllx64);
-                    if (Environment.Is64BitProcess)
+                    var task = new MCenterTask(() => File.Delete(fileName))
                     {
-                        g.Add(new ByteArrayContent(k), "files[0]", "x64.dll");
-                        if (File.Exists(Methods.Method.Dllx86))
-                        {
-                            var gs = File.ReadAllBytes(Methods.Method.Dllx86);
-                            g.Add(new ByteArrayContent(gs), "files[1]", "x86.dll");
-                        }
+                        ErrorDescriptionBuilder =
+                                                 (ex) => { return $"An error occured while deleting ${fileName}"; }
+                    };
+                retry:;
 
-                    }
-                    else
-                        g.Add(new ByteArrayContent(k), "files[0]", "x86.dll");
+                    var result = await task.Invoke(
+                               new Type[] { typeof(IOException), typeof(UnauthorizedAccessException)
+                               });
+                    while (result == InvokeResults.busy) goto retry;
+                    if (result == InvokeResults.errorOccured) return;
 
                 }
-                try
-                {
-
-
-                    Screens.ErrorScreen.retryButton.IsEnabled = false;
-                    Screens.ErrorScreen.copyButton.IsEnabled = false;
-                    Screens.ErrorScreen.cancelButton.IsEnabled = false;
-                    Screens.DllErrorScreen.retryButton.IsEnabled = false;
-                    Screens.DllErrorScreen.cancelButton.IsEnabled = false;
-                    Screens.DllErrorScreen.copyButton.IsEnabled = true;
-                    await client.PostAsync("https://discord.com/api/webhooks/924639290045116426/cnzRDxwcsnATV-IMw1QuMwfzvgnMBW7TeUJi59_hV90iNVYwIeaFM6AMCmBdSigIkJAS", g);
-                    Screens.ErrorScreen.retryButton.IsEnabled = true;
-                    Screens.ErrorScreen.copyButton.IsEnabled = true;
-                    Screens.ErrorScreen.cancelButton.IsEnabled = true;
-                    Screens.DllErrorScreen.retryButton.IsEnabled = true;
-                    Screens.DllErrorScreen.cancelButton.IsEnabled = true;
-                    Screens.DllErrorScreen.copyButton.IsEnabled = true;
-                    response = ErrorScreenResultEnum.copy;
-                }
-                catch (HttpRequestException)
-                {
-                    Screens.ErrorScreen.ErrorTitle = "Networking Error Occured";
-                    Screens.ErrorScreen.ErrorSubTitle = "";
-                    Screens.ErrorScreen.ErrorDescription = "A network error occured while posting the request";
-                    Screens.ErrorScreen.copyButton.IsEnabled = false;
-                    Screens.ErrorScreen.RemoveRetryHandles();
-                    Screens.ErrorScreen.RetryClicked += RetyFormSend;
-                    Screens.ErrorScreen.CancelClicked += CancelPostRequest;
-                    Screens.SetScreen(Screens.ErrorScreen);
-                }
-
-
-
+                File.Copy(Methods.Method.Dllx64, fileName);
+                await Task.Delay(15000);
+                files.Add(fileName);
             }
+
+            if (File.Exists(Methods.Method.Dllx86))
+            {
+                var fileName = $"{Version} x86.dll";
+                fileName = Path.Combine(Methods.Method.ClipboardFolder, fileName);
+                if (File.Exists(fileName))
+                {
+
+                    var task = new MCenterTask(() => File.Delete(fileName))
+                    {
+                        ErrorDescriptionBuilder =
+                                              (ex) => { return $"An error occured while deleting ${fileName}"; }
+                    };
+                retry:;
+
+                    var result = await task.Invoke(
+                               new Type[] { typeof(IOException), typeof(UnauthorizedAccessException)
+                               });
+                    while (result == InvokeResults.busy) goto retry;
+                    if (result == InvokeResults.errorOccured) return;
+
+
+
+
+                }
+                File.Copy(Methods.Method.Dllx86, fileName);
+                files.Add(fileName);
+            }
+            Clipboard.SetFileDropList(files);
+            response = ErrorScreenResultEnum.copy;
+            Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
+            return;
+
+
         }
 
         private void CancelPostRequest(object sender, EventArgs e)
