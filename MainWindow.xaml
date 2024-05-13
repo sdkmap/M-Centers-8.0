@@ -4,7 +4,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        
         xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
         
         xmlns:local="clr-namespace:MCenters"
@@ -70,7 +69,7 @@
                 <SolidColorBrush Color="#FF4CC2FF" Opacity="0.0"/>
             </Button.Background>
         </local:HoverableButton>
-        <Button Style="{DynamicResource ButtonRoundRevealStyle}" Content="Get Rick Roll" Grid.Column="2" Grid.Row="2" MinWidth="163" MinHeight="65" VerticalContentAlignment="Bottom"   OpacityMask="Magenta"
+        <local:HoverableButton x:Name="modOptionsButton" Style="{DynamicResource ButtonRoundRevealStyle}" Content="Mod Options" Grid.Column="2" Grid.Row="2" MinWidth="163" MinHeight="65" VerticalContentAlignment="Bottom"   OpacityMask="Magenta"
            fw:RevealElement.BorderRadius="20" Margin="2,0,2,0">
             <fw:RevealElement.MouseOverBackground>
                 <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
@@ -78,11 +77,13 @@
             <Button.Background>
                 <SolidColorBrush Color="#FF4CC2FF" Opacity="0.0"/>
             </Button.Background>
-        </Button>
+        </local:HoverableButton>
 
         <Image x:Name="installIcon" Margin="48,4,51,22" Grid.Row="2" Source="/images/install_hack.png" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False"/>
         <Image x:Name="uninstallIcon" Margin="48,4,51,22" Grid.Column="1" Grid.Row="2" Source="/images/uninstall_hack.png" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False"/>
-        <MediaElement x:Name="rickRoller"  Margin="48,4,51,22" Grid.Column="2" Grid.Row="2" Source="/images/rick_roll.gif" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False" LoadedBehavior="Manual" UnloadedBehavior="Manual" Volume="1"/>
+        <Image x:Name="modOptionsIcon"  Margin="48,4,51,22" Grid.Column="2" Grid.Row="2" Source="/images/options.png" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False" >
+            
+        </Image>
 
         <local:HoverableButton x:Name="settingsButton" Style="{DynamicResource ButtonRoundRevealStyle}" Content="Settings" Grid.Column="2" VerticalContentAlignment="Bottom"  OpacityMask="Magenta"
             fw:RevealElement.BorderRadius="7" Margin="179,0,2,1" Click="SettingsButton_Click" 

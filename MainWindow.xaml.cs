@@ -22,11 +22,6 @@ namespace MCenters
         public BindingExpression EnableUninstall;
         public BindingExpression EnableInstall;
 
-
-        public static MediaElement RickRoll { get; set; }
-        public static bool IsDoingRickRoll { get; set; }
-        public static bool IsRickRollPaused { get; internal set; }
-
         public MainWindow()
         {
             Screens.InstallScreen = new InstallScreen();
@@ -44,45 +39,15 @@ namespace MCenters
             {
                 CurrentMode = ErrorTypeEnum.ReportDll
             };
-            RickRoll = rickRoller;
             settingsButton.ConnectedImage = settingsLogo;
             installButton.ConnectedImage = installIcon;
             uninstallButton.ConnectedImage = uninstallIcon;
+            modOptionsButton.ConnectedImage = modOptionsIcon;
             Screens.Window = this;
             if (!Directory.Exists(Methods.Method.ClipboardFolder)) Directory.CreateDirectory(Methods.Method.ClipboardFolder);
 
             EnableUninstall = uninstallButton.GetBindingExpression(IsEnabledProperty);
             EnableInstall = installButton.GetBindingExpression(IsEnabledProperty);
-            var mediaFiles = Directory.GetFiles("images/");
-            mediaFiles = mediaFiles.Where((file, index) => file.EndsWith(".mp4") || file.EndsWith(".gif")).ToArray();
-            if (mediaFiles.Length == 0) return;
-
-            rickRoller.Source = new Uri(mediaFiles[0], UriKind.Relative);
-            var time = new TimeSpan(0, 0, 0, 0, 1);
-            int i = 1;
-
-            rickRoller.MediaEnded += (sender, e) =>
-            {
-                if (IsRickRollPaused) return;
-                if (++i >= mediaFiles.Length) i = 0;
-                // When media ends, restart playback from the beginning
-                rickRoller.Position = time;
-                rickRoller.Source = new Uri(mediaFiles[i], UriKind.Relative);
-                try
-                {
-                    
-                    rickRoller.Play();
-                }
-                catch (InvalidOperationException)
-                {
-
-
-                }
-            };
-            rickRoller.Play();
-            IsDoingRickRoll = true;
-            IsRickRollPaused = false;
-            
         }
 
 
