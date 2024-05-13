@@ -43,7 +43,7 @@
                 </RadialGradientBrush>
             </ProgressBar.Foreground>
         </ProgressBar>
-        <local:HoverableButton x:Name="startButton" IsEnabled="{Binding ButtonEnabled,  diag:PresentationTraceSources.TraceLevel=High,ElementName=progressScreen,UpdateSourceTrigger=Explicit, Mode=TwoWay,IsAsync=True}"  Content="Start" Margin="248,350,317,10" Style="{DynamicResource ButtonRoundAccentRevealStyle}" Background="{x:Null}" VerticalContentAlignment="Bottom" Click="Button_Click" >
+        <local:HoverableButton x:Name="startButton" IsEnabled="{Binding ButtonEnabled,ElementName=progressScreen,UpdateSourceTrigger=Explicit, Mode=TwoWay,IsAsync=True}"  Content="Start" Margin="248,350,317,10" Style="{DynamicResource ButtonRoundAccentRevealStyle}" Background="{x:Null}" VerticalContentAlignment="Bottom" Click="Button_Click" >
             <fw:RevealElement.MouseOverBackground>
                 <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
             </fw:RevealElement.MouseOverBackground>
