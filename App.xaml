@@ -5,7 +5,7 @@
              xmlns:local="clr-namespace:MCenters"
              StartupUri="MainWindow.xaml"
                  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-
+    
     >
     <Application.Resources>
         <ResourceDictionary>

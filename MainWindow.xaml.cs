@@ -1,7 +1,10 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using SourceChord.FluentWPF;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -21,7 +24,7 @@ namespace MCenters
     {
         public BindingExpression EnableUninstall;
         public BindingExpression EnableInstall;
-
+        public readonly string CurrentVersion = "";
         public MainWindow()
         {
             Screens.InstallScreen = new InstallScreen();
@@ -29,7 +32,11 @@ namespace MCenters
             {
                 Mode = InstallScreenModeEnum.Uninstall
             };
+            var versionInfo = Process.GetCurrentProcess().MainModule.FileVersionInfo;
+            CurrentVersion = versionInfo.FileVersion;
+            ResourceDictionaryEx.GlobalTheme = ElementTheme.Light;
             InitializeComponent();
+            Title = $"M Centers {versionInfo.FileMajorPart}.{versionInfo.FileMinorPart}";
             Methods.Method.LogFileName = DateTime.Now.ToString("dddd_d_MMMM_yyyy hh_mm_ss_tt").Replace(':', '_') + ".txt";
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
             Screens.SettingsScreen = new Setting_Screen();

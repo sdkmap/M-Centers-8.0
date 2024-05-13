@@ -8,21 +8,17 @@
         
         xmlns:local="clr-namespace:MCenters"
         mc:Ignorable="d"
-        Title="M Centers 4.0"
-             Height="450" Width="800" TintColor="#FFD3D3D3" TitleBarMode="Extend" AcrylicWindowStyle="NoIcon" TintOpacity="0.1"
-                  
-          
-              
+        Height="450" Width="800" TintColor="#FFD3D3D3" TitleBarMode="Extend" TintOpacity="0.1"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"
-        FontFamily="{DynamicResource MaterialDesignFont}" Effect="{DynamicResource MaterialDesignShadowDepth3}" AllowsTransparency="True" WindowStyle="None" ResizeMode="CanMinimize"  
+        FontFamily="{DynamicResource MaterialDesignFont}" Effect="{DynamicResource MaterialDesignShadowDepth3}" ResizeMode="CanMinimize"  
                   
-          TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+          TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}" WindowStyle="None" AcrylicWindowStyle="NoIcon"
                 >
     <fw:AcrylicWindow.Background>
-        <SolidColorBrush Color="#FFFAFAFA" Opacity="0.01"/>
+        <SolidColorBrush Color="#FFFAFAFA" Opacity="0.95"/>
     </fw:AcrylicWindow.Background>
 
 
@@ -82,7 +78,7 @@
         <Image x:Name="installIcon" Margin="48,4,51,22" Grid.Row="2" Source="/images/install_hack.png" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False"/>
         <Image x:Name="uninstallIcon" Margin="48,4,51,22" Grid.Column="1" Grid.Row="2" Source="/images/uninstall_hack.png" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False"/>
         <Image x:Name="modOptionsIcon"  Margin="48,4,51,22" Grid.Column="2" Grid.Row="2" Source="/images/options.png" StretchDirection="Both" Stretch="Uniform" IsHitTestVisible="False" >
-            
+
         </Image>
 
         <local:HoverableButton x:Name="settingsButton" Style="{DynamicResource ButtonRoundRevealStyle}" Content="Settings" Grid.Column="2" VerticalContentAlignment="Bottom"  OpacityMask="Magenta"
