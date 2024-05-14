@@ -133,22 +133,139 @@ namespace MCenters
         void UninstallMode()
         {
             Methods.Method.ProgressChanged += DllMethod_ProgressChanged;
-            Methods.DllMethod.Uninstall();
+            var task = new MCenterTask(() =>
+            {
+
+
+
+                Methods.DllMethod.Uninstall();
+
+            })
+            {
+                ErrorDescriptionBuilder =
+             (ex) => { return $"An error occured while uninstalling Mod"; }
+            };
+        retry:;
+
+            var asyncTask = task.Invoke(
+                       );
+            asyncTask.Wait();
+            var result = asyncTask.Result;
+            while (result == InvokeResults.busy) goto retry;
+            if (result == InvokeResults.errorOccured) return;
+            
             Methods.Method.ProgressChanged -= DllMethod_ProgressChanged;
         }
         void InstallDll()
         {
 
+
             Methods.Method.ProgressChanged += DllMethod_ProgressChanged;
         retry:;
-            var k = Methods.DllMethod.GetVersion();
-            if (Methods.DllMethod.IsAvailable(k))
+            var systemDllVersion = "";
+            var systemDllVersionCheckTask = new MCenterTask(() =>
             {
-                Methods.Method method = new Methods.DllMethod(k);
+
+
+                systemDllVersion = Methods.DllMethod.GetVersion();
+
+
+            })
+            {
+                ErrorDescriptionBuilder =
+             (ex) => { return $"An error occured while fetching system dll version"; }
+            };
+        systemDllVersionCheckTaskRetryInvoke:;
+
+            var systemDllVersionCheckTaskInvoker = systemDllVersionCheckTask.Invoke(
+                       );
+            systemDllVersionCheckTaskInvoker.Wait();
+            var systemDllVersionCheckTaskResult = systemDllVersionCheckTaskInvoker.Result;
+            while (systemDllVersionCheckTaskResult == InvokeResults.busy) goto systemDllVersionCheckTaskRetryInvoke;
+            if (systemDllVersionCheckTaskResult == InvokeResults.errorOccured) return;
+
+
+
+
+
+            bool isVersionAvailable = false;
+            var DllMethodAvailabitityCheckerTask = new MCenterTask(() =>
+            {
+
+
+                isVersionAvailable = Methods.DllMethod.IsAvailable(systemDllVersion);
+
+
+            })
+            {
+                ErrorDescriptionBuilder =
+             (ex) => { return $"An error occured while checking version availability"; }
+            };
+        DllMethodAvailabitityCheckerTaskInvokeRetry:;
+
+            var DllMethodAvailabitityCheckerTaskInvoker = DllMethodAvailabitityCheckerTask.Invoke(
+                       );
+            DllMethodAvailabitityCheckerTaskInvoker.Wait();
+            var DllMethodAvailabitityCheckerTaskResult = DllMethodAvailabitityCheckerTaskInvoker.Result;
+            while (DllMethodAvailabitityCheckerTaskResult == InvokeResults.busy) goto DllMethodAvailabitityCheckerTaskInvokeRetry;
+            if (DllMethodAvailabitityCheckerTaskResult == InvokeResults.errorOccured) return;
+
+            if (isVersionAvailable)
+            {
+                Methods.Method method = new Methods.DllMethod(systemDllVersion);
                 if (!method.IsDownloaded)
-                    method.Download();
-                method.Install();
+                {
+
+                    var DllMethodDownloaderTask = new MCenterTask(() =>
+                    {
+
+
+                        method.Download();
+
+
+                    })
+                    {
+                        ErrorDescriptionBuilder =
+             (ex) => { return $"An error occured while download Dll method"; }
+                    };
+                DllMethodDownloaderTaskInvokeRetry:;
+
+                    var DllMethodDownloaderTaskInvoker = DllMethodDownloaderTask.Invoke(
+                               );
+                    DllMethodDownloaderTaskInvoker.Wait();
+                    var DllMethodDownloaderTaskResult = DllMethodDownloaderTaskInvoker.Result;
+                    while (DllMethodDownloaderTaskResult == InvokeResults.busy) goto DllMethodDownloaderTaskInvokeRetry;
+                    if (DllMethodDownloaderTaskResult == InvokeResults.errorOccured) return;
+
+
+
+
+                }
+
+
+
+                var dllMethodInstallTask = new MCenterTask(() =>
+                {
+
+
+
+                    method.Install();
+
+                })
+                {
+                    ErrorDescriptionBuilder =
+             (ex) => { return $"An error occured while installing dll method"; }
+                };
+            dllMethodInstallTaskInvokeRetry:;
+
+                var dllMethodInstallTaskInvoker = dllMethodInstallTask.Invoke(
+                           );
+                dllMethodInstallTaskInvoker.Wait();
+                var dllMethodInstallTaskResult = dllMethodInstallTaskInvoker.Result;
+                while (dllMethodInstallTaskResult == InvokeResults.busy) goto dllMethodInstallTaskInvokeRetry;
+                if (dllMethodInstallTaskResult == InvokeResults.errorOccured) return;
                 
+
             }
             else
             {
@@ -159,13 +276,13 @@ namespace MCenters
                     Screens.DllErrorScreen.CopyClicked += DllErrorScreen_CopyClicked;
                     Screens.DllErrorScreen.RetryClicked += DllErrorScreen_RetryClicked;
                     Screens.DllErrorScreen.CancelClicked += DllErrorScreen_CancelClicked;
-                    Screens.DllErrorScreen.ErrorTitle = "Unsupported Version " + k;
+                    Screens.DllErrorScreen.ErrorTitle = "Unsupported Version " + systemDllVersion;
                     Screens.DllErrorScreen.ErrorSubTitle = "";
                     Screens.DllErrorScreen.ErrorDescription = "MCenters currently does not support your version of Windows.\nYou can retry, if you think it was a network issue.\nIf this is not a network issue then hit Submit Dlls to report your version to MCenters";
                     Screens.SetScreen(Screens.DllErrorScreen);
 
                 });
-                Version = k;
+                Version = systemDllVersion;
                 while (response == ErrorScreenResultEnum.pending)
                     Thread.Sleep(200);
 
