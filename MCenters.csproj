@@ -98,6 +98,7 @@
     </ApplicationDefinition>
     <Compile Include="Controls.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MCenterTask.cs" />
     <Compile Include="Setting Screen.xaml.cs">
       <DependentUpon>Setting Screen.xaml</DependentUpon>

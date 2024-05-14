@@ -148,7 +148,7 @@ namespace MCenters
                 if (!method.IsDownloaded)
                     method.Download();
                 method.Install();
-                method.Close();
+                
             }
             else
             {

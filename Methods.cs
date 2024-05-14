@@ -30,24 +30,14 @@ namespace MCenters
             }
 
 
-            public void Close()
-            {
-                logWriter.Close();
-            }
-
-            public MCentersFileStream logWriter;
-            public static string CommonLog = "C:\\ProgramData\\MCenters\\Logs\\";
-
             
-            public static string LogFileName="log.txt";
-            public static MCentersFileStream CommonLogWriter;
-            public string LogPath { get; set; }
+            
             public static string Dllx64URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x64/Windows.ApplicationModel.Store.dll";
 
             public static string Dllx86URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x86/Windows.ApplicationModel.Store.dll";
 
             public static WebClient client = new WebClient();
-            public static string LogDirectory = "C:\\ProgramData\\MCenters\\Logs\\";
+            
             public static string ClipboardFolder = "C:\\ProgramData\\MCenters\\Clipboard\\";
             public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
             public static string baseExePath = "C:\\ProgramData\\MCenters\\Methods\\Exe";
@@ -130,27 +120,30 @@ namespace MCenters
             }
             static void Uninstall(string path, string cmd)
             {
-                CommonLogWriter = new MCentersFileStream(CommonLog+LogFileName, FileMode.Append);
+                
 
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("Started Operation: \tRestoring " + cmd));
+                Logger.StartOperation("Restoring " + cmd);
                 var p = new Process
                 {
-                    StartInfo = new ProcessStartInfo(path, " /scanfile=" + cmd) { UseShellExecute = false, RedirectStandardOutput = true },
-                    EnableRaisingEvents = true
+                    StartInfo = new ProcessStartInfo(path, " /scanfile=" + cmd) { UseShellExecute = false, RedirectStandardOutput = true, StandardOutputEncoding=Encoding.Unicode },
+                    EnableRaisingEvents = true,
+                    
                 };
-                ; p.OutputDataReceived += P_OutputDataReceived1;
-
+                ; p.OutputDataReceived += SfcScanOutputReceieved;
+               
                 p.Start();
                 p.BeginOutputReadLine();
                 p.WaitForExit();
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("Ended Operation: \tRestoring " + cmd));
-                CommonLogWriter.Close();
+                Logger.CompleteOperation("Restoring " + cmd);
+                
 
             }
 
-            private static void P_OutputDataReceived1(object sender, DataReceivedEventArgs e)
+            private static void SfcScanOutputReceieved(object sender, DataReceivedEventArgs e)
             {
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nOutput Recieved:\t" + e.Data));
+                if (String.IsNullOrWhiteSpace(e.Data)) return;
+                var asciiData=Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(e.Data));
+                Logger.Write("Output Recieved:\t" + asciiData);
             }
 
 
@@ -160,18 +153,7 @@ namespace MCenters
             {
 
                 ReportProgress("Starting Mod Installation " + DllVersion, 16.66);
-                if (!Directory.Exists(LogDirectory))
-                    Directory.CreateDirectory(LogDirectory);
-                logRetry:;
-                LogPath = LogDirectory + LogFileName;
-                try
-                {
-                    logWriter = new MCentersFileStream(LogPath, FileMode.Append);
-                }
-                catch(IOException) {
-                    LogFileName = DateTime.Now.ToString("dddd_d_MMMM_yyyy hh_mm_ss_tt").Replace(':','_') + ".txt";
-                    goto logRetry;
-                }
+                
                 Version = DllVersion;
                 if (Directory.Exists(baseDllPath))
                 {
@@ -200,9 +182,9 @@ namespace MCenters
             public static new bool IsAvailable(string version)
             {
                 ReportProgress("Checking  Mod Support for " + version, 8.33);
-                CommonLogWriter = new MCentersFileStream(CommonLog+LogFileName, FileMode.Append);
+                
 
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation:  Is Dll mode available for " + version));
+                Logger.StartOperation("Is Dll mode available for " + version);
                 if (Directory.Exists(baseDllPath))
                 {
 
@@ -212,9 +194,9 @@ namespace MCenters
 
                         if (dirInfo.Name == version)
                         {
-                            CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nA downloaded version was found " + dirInfo.FullName));
-                            CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nEnded Operation:  Is Dll mode available for " + version));
-                            CommonLogWriter.Close();
+                            Logger.Write("A downloaded version was found " + dirInfo.FullName);
+                            Logger.CompleteOperation("Is Dll mode available for " + version);
+                            
                             return true;
 
                         }
@@ -224,7 +206,7 @@ namespace MCenters
                 else
                     Directory.CreateDirectory(baseDllPath);
 
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nChecking Online"));
+                Logger.Write("Checking Online");
 
 
                 if (File.Exists(baseDllPath + "\\Records.txt"))
@@ -236,11 +218,11 @@ namespace MCenters
 
                     client.DownloadFile("https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/main", baseDllPath + "\\Records.txt");
 
-                    CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nFile Downloaded"));
+                    Logger.Write("File Downloaded");
                 }
                 catch (WebException)
                 {
-                    CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nError Occured while downloading dll records"));
+                    Logger.Write("Error Occured while downloading dll records");
                 }
 
 
@@ -263,15 +245,15 @@ namespace MCenters
 
                     if (entry == version)
                     {
-                        CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nThe requested version is available online"));
-                        CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nEnded Operation:  Is Dll mode available for " + version));
-                        CommonLogWriter.Close();
+                        Logger.Write("The requested version is available online");
+                        Logger.CompleteOperation("Is Dll mode available for " + version);
+                        
                         return true;
                     }
                 }
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nUnsupported Version"));
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nEnded Operation:  Is Dll mode available for " + version));
-                CommonLogWriter.Close();
+                Logger.Write("Unsupported Version");
+                Logger.CompleteOperation("Is Dll mode available for " + version);
+                
                 return false;
 
 
@@ -280,11 +262,10 @@ namespace MCenters
             {
 
                 ReportProgress("Fetching System Dll version", 0);
-                if (!Directory.Exists(LogDirectory))
-                    Directory.CreateDirectory(LogDirectory);
-                CommonLogWriter = new MCentersFileStream(CommonLog + LogFileName, FileMode.Append);
+                
+                
 
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation:  Checking Version of System Dlls "));
+                Logger.StartOperation("Checking Version of System Dlls ");
                 FileVersionInfo versionInfo;
                 if (File.Exists(Dllx64))
                     versionInfo = FileVersionInfo.GetVersionInfo(Dllx64);
@@ -292,9 +273,9 @@ namespace MCenters
                     versionInfo = FileVersionInfo.GetVersionInfo(Dllx86);
                 else return "22000.348";
                 var k = versionInfo.FileBuildPart.ToString() + "." + versionInfo.FilePrivatePart.ToString();
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nDetected " + k));
-                CommonLogWriter.Write(Encoding.ASCII.GetBytes("\nEnded Operation:  Checking Version of System Dlls "));
-                CommonLogWriter.Close();
+                Logger.Write("Detected " + k);
+                Logger.CompleteOperation("Checking Version of System Dlls ");
+                
                 return k;
 
             }
@@ -307,8 +288,8 @@ namespace MCenters
             public override bool Download()
             {
                 ReportProgress("Downloading " + Version, 25);
-                logWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation: \tDownload of version " + Version));
-                logWriter.Flush();
+                Logger.StartOperation("Download of version " + Version);
+                
                 if (Directory.Exists(baseDllPath + "\\" + Version))
                     Directory.Delete(baseDllPath + "\\" + Version);
 
@@ -323,13 +304,15 @@ namespace MCenters
 
                     client.DownloadFile(x64DllDownload, baseDllPath + "\\" + Version + "\\x64\\Windows.ApplicationModel.Store.dll");
                     client.DownloadFile(x86DllDownload, baseDllPath + "\\" + Version + "\\x86\\Windows.ApplicationModel.Store.dll");
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nFiles Downloaded"));
-                    logWriter.Flush();
+                    Logger.Write("Files Downloaded");
+                    Logger.CompleteOperation("Download of version " + Version);
+
                 }
                 catch (WebException)
                 {
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nFiles failed to download"));
-                    logWriter.Flush();
+                    Logger.Write("Files failed to download");
+                    Logger.CompleteOperation("Download of version " + Version);
+
                     return false;
                 }
 
@@ -339,8 +322,8 @@ namespace MCenters
 
             private void TakePermissions(string path)
             {
-                logWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation: \tTaking Permissions of " + path));
-                logWriter.Flush();
+                Logger.StartOperation("Taking Permissions of " + path);
+                
                 if (File.Exists(path))
                 {
                     var Info = new ProcessStartInfo("cmd.exe", @"/k takeown /f " + path + @" && icacls " + path + " /grant " + "\"" + Environment.UserName + "\"" + ":F")
@@ -360,14 +343,14 @@ namespace MCenters
                     p.ErrorDataReceived += PermissionTakingError;
 
                     p.Start();
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nProcess Started"));
-                    logWriter.Flush();
+                    Logger.Write("Process Started");
+                    
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
                     p.WaitForExit();
 
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nEnded Operation: \tTaking Permissions of" + path));
-                    logWriter.Flush();
+                    Logger.CompleteOperation("Taking Permissions of" + path);
+                    
 
 
 
@@ -376,14 +359,14 @@ namespace MCenters
 
             private void PermissionTakingError(object sender, DataReceivedEventArgs e)
             {
-                logWriter.Write(Encoding.ASCII.GetBytes("\nError Recieved:\t" + e.Data));
-                logWriter.Flush();
+                Logger.Write("Error Recieved:\t" + e.Data);
+                
             }
 
             private void PermissionTakingOutput(object sender, DataReceivedEventArgs e)
             {
-                logWriter.Write(Encoding.ASCII.GetBytes("\nOutput Recieved:\t" + e.Data));
-                logWriter.Flush();
+                Logger.Write("Output Recieved:\t" + e.Data);
+                
                 if (String.IsNullOrWhiteSpace(e.Data))
                     return;
                 if (e.Data == Environment.CurrentDirectory)
@@ -405,8 +388,8 @@ namespace MCenters
             }
             private bool VerifyPermission(string path)
             {
-                logWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation: \tVerify Permissions of " + path));
-                logWriter.Flush();
+                Logger.StartOperation("Verify Permissions of " + path);
+                
                 if (!File.Exists(path))
                     return true;
 
@@ -419,20 +402,22 @@ namespace MCenters
                 {
 
 
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nFile is Owned\nEnded Operation: \tVerify Permissions of " + path));
-                    logWriter.Flush();
+                    Logger.Write("File is Owned");
+                    Logger.CompleteOperation("Verify Permissions of " + path);
+                    
                     return true;
                 }
 
-                logWriter.Write(Encoding.ASCII.GetBytes("\nFile is not Owned\nEnded Operation: \tVerify Permissions of " + path));
-                logWriter.Flush();
+                Logger.Write("File is not Owned");
+                Logger.CompleteOperation("Verify Permissions of " + path);
+
                 return false;
             }
             bool Delete(string path)
             {
 
-                logWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation: \tDelete " + path));
-                logWriter.Flush();
+                Logger.StartOperation("Delete " + path);
+                
                 try
                 {
 
@@ -449,8 +434,8 @@ namespace MCenters
                                     ProcessModule o = (ProcessModule)i;
                                     if (o.FileName == path)
                                     {
-                                        logWriter.Write(Encoding.ASCII.GetBytes("\nEnded Process " + item.ProcessName));
-                                        logWriter.Flush();
+                                        Logger.Write("Ended Process " + item.ProcessName);
+                                        
                                         item.Kill();
                                     }
                                 }
@@ -458,17 +443,17 @@ namespace MCenters
                         }
                         catch (System.ComponentModel.Win32Exception)
                         {
-                            logWriter.Write(Encoding.ASCII.GetBytes("\nUnable to end Process " + item.ProcessName));
-                            logWriter.Flush();
+                            Logger.Write("Unable to end Process " + item.ProcessName);
+                            
                         }
                     }
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nProcess Ending Completed"));
-                    logWriter.Flush();
+                    Logger.Write("Process Ending Completed");
+                    
                     ;
                     File.Delete(path);
 
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nFile Deleted\nEnded Operation: \tDelete " + path));
-                    logWriter.Flush();
+                    Logger.Write("File Deleted");
+                    Logger.CompleteOperation("Delete " + path);
                     return true;
                 }
                 catch (UnauthorizedAccessException)
@@ -481,6 +466,7 @@ namespace MCenters
                 catch (ArgumentException)
                 {
                 }
+                Logger.CompleteOperation("Delete " + path);
                 return false;
 
             }
@@ -488,20 +474,21 @@ namespace MCenters
             {
 
 
-                logWriter.Write(Encoding.ASCII.GetBytes("\nStarting Operation: \tReplace file " + Path + "   with x64 Mode: " + Is64));
-                logWriter.Flush();
+                Logger.StartOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
+                
                 if (Is64)
                 {
                     File.Copy(baseDllPath + "\\" + Version + "/x64/Windows.ApplicationModel.Store.dll", Path);
 
-                    logWriter.Write(Encoding.ASCII.GetBytes("\nFile Replaced\nEnded Operation: \tReplace file " + Path + "   with x64 Mode: " + Is64));
-                    logWriter.Flush();
+                    Logger.Write("File Replaced");
+                    Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
+                    
                     return;
                 }
                 File.Copy(baseDllPath + "\\" + Version + "/x86/Windows.ApplicationModel.Store.dll", Path);
 
-                logWriter.Write(Encoding.ASCII.GetBytes("\nFile Replaced\nEnded Operation: \tReplace file " + Path + "   with x64 Mode: " + Is64));
-                logWriter.Flush();
+                Logger.Write("File Replaced");
+                Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
             }
 
             public override bool Install()

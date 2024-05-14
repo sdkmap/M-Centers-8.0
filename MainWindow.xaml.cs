@@ -37,7 +37,7 @@ namespace MCenters
             ResourceDictionaryEx.GlobalTheme = ElementTheme.Light;
             InitializeComponent();
             Title = $"M Centers {versionInfo.FileMajorPart}.{versionInfo.FileMinorPart} Preview";
-            Methods.Method.LogFileName = DateTime.Now.ToString("dddd_d_MMMM_yyyy hh_mm_ss_tt").Replace(':', '_') + ".txt";
+            
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
             Screens.SettingsScreen = new Setting_Screen();
             Screens.MainScreen = this.Content;
@@ -77,5 +77,10 @@ namespace MCenters
             Content = Screens.UninstallScreen;
         }
 
+        private void AcrylicWindow_Closed(object sender, EventArgs e)
+        {
+            Logger.Write("\n\n\n\n\n\nApplication Closing",true);
+            Logger.Close();
+        }
     }
 }
