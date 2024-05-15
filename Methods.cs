@@ -94,11 +94,11 @@ namespace MCenters
                     ReportProgress("Fixing x64 Dll", 25);
                 else
                     ReportProgress("Fixing Dll", 50);
-                Uninstall("C:\\Windows\\System32\\sfc.exe", "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll");
+                SfcFileScan("C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll");
                 if (Environment.Is64BitProcess)
                 {
                     ReportProgress("Fixing x86 Dll", 50);
-                    Uninstall("C:\\Windows\\System32\\sfc.exe", "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll");
+                    SfcFileScan("C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll");
                 }
                 ReportProgress("Uninstall Successful", 100);
 
@@ -119,9 +119,9 @@ namespace MCenters
 
                 }
             }
-            static void Uninstall(string sfcPath, string fileName)
+            static void SfcFileScan(string fileName)
             {
-                
+              var  sfcPath = "C:\\Windows\\System32\\sfc.exe";
 
                 Logger.StartOperation("Restoring " + fileName);
                 var p = new Process
