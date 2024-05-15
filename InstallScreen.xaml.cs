@@ -152,7 +152,16 @@ namespace MCenters
             asyncTask.Wait();
             var result = asyncTask.Result;
             while (result == InvokeResults.busy) goto retry;
-            if (result == InvokeResults.errorOccured) return;
+            if (result == InvokeResults.errorOccured)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    Status.Text = "Error occured last time while uninstalling dll method";
+                    ProgressValue = 0;
+                    progressRing.Value = 0;
+                });
+                
+            };
             
             Methods.Method.ProgressChanged -= DllMethod_ProgressChanged;
         }
@@ -182,7 +191,16 @@ namespace MCenters
             systemDllVersionCheckTaskInvoker.Wait();
             var systemDllVersionCheckTaskResult = systemDllVersionCheckTaskInvoker.Result;
             while (systemDllVersionCheckTaskResult == InvokeResults.busy) goto systemDllVersionCheckTaskRetryInvoke;
-            if (systemDllVersionCheckTaskResult == InvokeResults.errorOccured) return;
+            if (systemDllVersionCheckTaskResult == InvokeResults.errorOccured) 
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    Status.Text = "Error occured last time while checking system dll version";
+                    ProgressValue = 0;
+                    progressRing.Value = 0;
+                });
+                goto exit;
+            }
 
 
 
@@ -208,7 +226,16 @@ namespace MCenters
             DllMethodAvailabitityCheckerTaskInvoker.Wait();
             var DllMethodAvailabitityCheckerTaskResult = DllMethodAvailabitityCheckerTaskInvoker.Result;
             while (DllMethodAvailabitityCheckerTaskResult == InvokeResults.busy) goto DllMethodAvailabitityCheckerTaskInvokeRetry;
-            if (DllMethodAvailabitityCheckerTaskResult == InvokeResults.errorOccured) return;
+            if (DllMethodAvailabitityCheckerTaskResult == InvokeResults.errorOccured)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    Status.Text = "Error occured last time while checking crack support for system dll";
+                    ProgressValue = 0;
+                    progressRing.Value = 0;
+                });
+                goto exit;
+            }
 
             if (isVersionAvailable)
             {
@@ -235,7 +262,16 @@ namespace MCenters
                     DllMethodDownloaderTaskInvoker.Wait();
                     var DllMethodDownloaderTaskResult = DllMethodDownloaderTaskInvoker.Result;
                     while (DllMethodDownloaderTaskResult == InvokeResults.busy) goto DllMethodDownloaderTaskInvokeRetry;
-                    if (DllMethodDownloaderTaskResult == InvokeResults.errorOccured) return;
+                    if (DllMethodDownloaderTaskResult == InvokeResults.errorOccured)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            Status.Text = "Error occured last time while downloading cracked dll";
+                            ProgressValue = 0;
+                            progressRing.Value = 0;
+                        });
+                        goto exit;
+                    }
 
 
 
@@ -263,8 +299,17 @@ namespace MCenters
                 dllMethodInstallTaskInvoker.Wait();
                 var dllMethodInstallTaskResult = dllMethodInstallTaskInvoker.Result;
                 while (dllMethodInstallTaskResult == InvokeResults.busy) goto dllMethodInstallTaskInvokeRetry;
-                if (dllMethodInstallTaskResult == InvokeResults.errorOccured) return;
-                
+                if (dllMethodInstallTaskResult == InvokeResults.errorOccured)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        Status.Text = "Error occured last time while installing dll method";
+                        ProgressValue = 0;
+                        progressRing.Value = 0;
+                    });
+                    goto exit;
+                }
+
 
             }
             else
@@ -322,7 +367,7 @@ namespace MCenters
                 }
 
             }
-
+        exit:;
             Methods.Method.ProgressChanged -= DllMethod_ProgressChanged;
 
         }
