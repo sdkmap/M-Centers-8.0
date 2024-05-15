@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 
@@ -118,14 +119,14 @@ namespace MCenters
 
                 }
             }
-            static void Uninstall(string path, string cmd)
+            static void Uninstall(string sfcPath, string fileName)
             {
                 
 
-                Logger.StartOperation("Restoring " + cmd);
+                Logger.StartOperation("Restoring " + fileName);
                 var p = new Process
                 {
-                    StartInfo = new ProcessStartInfo(path, " /scanfile=" + cmd) { UseShellExecute = false, RedirectStandardOutput = true, StandardOutputEncoding=Encoding.Unicode },
+                    StartInfo = new ProcessStartInfo(sfcPath, " /scanfile=" + fileName) { UseShellExecute = false, RedirectStandardOutput = true, StandardOutputEncoding=Encoding.Unicode },
                     EnableRaisingEvents = true,
                     
                 };
@@ -134,7 +135,7 @@ namespace MCenters
                 p.Start();
                 p.BeginOutputReadLine();
                 p.WaitForExit();
-                Logger.CompleteOperation("Restoring " + cmd);
+                Logger.CompleteOperation("Restoring " + fileName);
                 
 
             }
@@ -323,14 +324,19 @@ namespace MCenters
             private void TakePermissions(string path)
             {
                 Logger.StartOperation("Taking Permissions of " + path);
-                
+                                    
                 if (File.Exists(path))
                 {
-                    var Info = new ProcessStartInfo("cmd.exe", @"/k takeown /f " + path + @" && icacls " + path + " /grant " + "\"" + Environment.UserName + "\"" + ":F")
+                    var executor = "takeown.exe";
+                    var arguments= $"/f {path}";
+                takeperms:;
+                    var icaclsCmd = $"icacls {path} /grant \"{Environment.UserName}\":F";
+                    var Info = new ProcessStartInfo(executor, arguments)
                     {
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
+                        
                         Verb = "runas"
                     };
                     Process p = new Process
@@ -343,13 +349,22 @@ namespace MCenters
                     p.ErrorDataReceived += PermissionTakingError;
 
                     p.Start();
-                    Logger.Write("Process Started");
+                    Logger.Write($"Process Started:\t{executor} {arguments}");
                     
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
                     p.WaitForExit();
-
-                    Logger.CompleteOperation("Taking Permissions of" + path);
+                    if (p.ExitCode != 0)
+                    {
+                        throw new MCenterException($"Failed executing {executor} {arguments}\nProcess Exit Code: {p.ExitCode}");
+                    }
+                    if (executor == "takeown.exe")
+                    {
+                        executor = $"icacls.exe";
+                        arguments = $"{path} /grant \"{Environment.UserName}\":F";
+                        goto takeperms;
+                    }
+                    Logger.CompleteOperation("Taking Permissions of " + path);
                     
 
 
@@ -359,31 +374,22 @@ namespace MCenters
 
             private void PermissionTakingError(object sender, DataReceivedEventArgs e)
             {
+                if (String.IsNullOrWhiteSpace(e.Data))
+                    return;
+
                 Logger.Write("Error Recieved:\t" + e.Data);
                 
             }
 
             private void PermissionTakingOutput(object sender, DataReceivedEventArgs e)
             {
-                Logger.Write("Output Recieved:\t" + e.Data);
+                
                 
                 if (String.IsNullOrWhiteSpace(e.Data))
                     return;
-                if (e.Data == Environment.CurrentDirectory)
-                {
 
-                    (sender as Process).Kill();
-                    return;
-
-                }
-
-                if (e.Data.Contains("Failed processing 0 files"))
-                {
-                    (sender as Process).Kill();
-
-                }
-                if (e.Data == Environment.CurrentDirectory)
-                    return;
+                Logger.Write("Output Recieved:\t" + e.Data);
+                
 
             }
             private bool VerifyPermission(string path)
