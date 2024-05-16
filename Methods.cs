@@ -205,7 +205,7 @@ namespace MCenters
                     SfcFileScan("C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll");
                 }
                 ReportProgress("Uninstall Successful", 100);
-                Process.Start(new ProcessStartInfo("shutdown", "/r /t 600")
+                Process.Start(new ProcessStartInfo("shutdown", "/r /t 600 /c \"Restarting in 10 minutes to uninstall Cracked Dlls\" /soft /d p:4:1")
                 {
                     CreateNoWindow = true,
                     UseShellExecute = false
