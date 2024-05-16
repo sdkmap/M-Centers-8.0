@@ -3,6 +3,7 @@ using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Principal;
@@ -46,12 +47,12 @@ namespace MCenters
             {
                 throw new NotImplementedException();
             }
-            
-            
+
             
 
 
-            
+
+
 
 
 
@@ -71,17 +72,55 @@ namespace MCenters
         }
         public class DllMethod : Method
         {
-            public static string Dllx64URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x64/Windows.ApplicationModel.Store.dll";
+            public static string Dllx64URL = "https://raw.githubusercontent.com/{username}/mcenterdlls/main/{identity}/x64/Windows.ApplicationModel.Store.dll";
 
-            public static string Dllx86URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x86/Windows.ApplicationModel.Store.dll";
+            public static string Dllx86URL = "https://raw.githubusercontent.com/{username}/mcenterdlls/main/{identity}/x86/Windows.ApplicationModel.Store.dll";
 
+
+            
             public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
             public static string Dllx64 = "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll";
             public static string Dllx86 = "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll";
+            public static string baseThirdPartyPath = "C:\\ProgramData\\MCenters\\Methods\\ThirdPartyDlls";
+
+            public string SelectedProviderName = "tinedpakgamer";
+            string SelectedPath = "";
+            public static string[] AllThirdPartyUsernames = null;
+            static DllMethod()
+            {
+                RefreshThirdPartyProviders();
+            }
+            static void RefreshThirdPartyProviders()
+            {
+                if (!Directory.Exists(baseThirdPartyPath)) return;
+                var dirs = Directory.EnumerateDirectories(baseThirdPartyPath, "*", SearchOption.TopDirectoryOnly).ToArray();
+                AllThirdPartyUsernames = dirs.Select((dir) => Path.GetFileName(dir)).ToArray();
+            }
+           public static async Task<bool> TryAddThirdParty(string provider)
+            {
+                
+                
+
+    var result=     await           MCenterTask.CreateAndRunBasicOnThread(()=> client.DownloadFile($"https://raw.githubusercontent.com/{provider}/mcenterdlls/main/main", "tmp.txt"));
+                if (result == InvokeResults.completed)
+                {
+                    File.Delete("tmp.txt");
+                    var providerPath=Path.Combine(baseThirdPartyPath, provider);
+                    Directory.CreateDirectory(providerPath);
+                    RefreshThirdPartyProviders();
+                    return true;
+                }
+                return false;
+                    
+                
+
+            }
+
             public string Version { get; set; }
             public bool IsDownloaded { get; private set; }
+            public bool IsThirdPartyDownloaded { get; private set; }
 
-
+           
             
             public static new ErrorScreenResultEnum ShowIncompatibility(object identity)
             {
@@ -253,16 +292,24 @@ namespace MCenters
 
 
 
-            public DllMethod(string DllVersion)
+            public DllMethod(string DllVersion, string thirdpartyUserName=null)
             {
-
+                SelectedProviderName = "tinedpakgamer";
+                SelectedPath = baseDllPath;
+                if (thirdpartyUserName != null && AllThirdPartyUsernames.Contains(thirdpartyUserName)) {
+                   var path= Path.Combine(baseThirdPartyPath, thirdpartyUserName, "dll");
+                    if (Directory.Exists(path)) { 
+                        SelectedPath = path;
+                        SelectedProviderName = thirdpartyUserName;
+                    }
+                }
                 ReportProgress("Starting Mod Installation " + DllVersion, 16.66);
                 
                 Version = DllVersion;
-                if (Directory.Exists(baseDllPath))
+                if (Directory.Exists(SelectedPath))
                 {
                     IsDownloaded = false;
-                    var baseDirInfo = new DirectoryInfo(baseDllPath);
+                    var baseDirInfo = new DirectoryInfo(SelectedPath);
                     foreach (var dirInfo in baseDirInfo.EnumerateDirectories())
                     {
                         if (dirInfo.Name == DllVersion)
@@ -277,7 +324,7 @@ namespace MCenters
                 else
                 {
 
-                    Directory.CreateDirectory(baseDllPath);
+                    Directory.CreateDirectory(SelectedPath);
                     IsDownloaded = false;
 
                 }
@@ -362,6 +409,99 @@ namespace MCenters
 
 
             }
+
+            public static string IsAvailableOnThirdParty(string version)
+            {
+                if (AllThirdPartyUsernames == null) 
+                    RefreshThirdPartyProviders();
+                if (AllThirdPartyUsernames == null) return null;
+                if(AllThirdPartyUsernames.Length==0) return null;
+                ReportProgress("Checking  Mod Support for " + version+" via third party", 8.33);
+
+
+                Logger.StartOperation("Is Dll mode available for " + version+" on third party");
+                if (Directory.Exists(baseThirdPartyPath))
+                {
+                    foreach (var provider in AllThirdPartyUsernames)
+                    {
+
+                        var path = Path.Combine(baseThirdPartyPath, provider, "Dll");
+                        if (!Directory.Exists(path)) continue;
+                        var baseDirInfo = new DirectoryInfo(path);
+                        foreach (var dirInfo in baseDirInfo.EnumerateDirectories())
+                        {
+
+                            if (dirInfo.Name == version)
+                            {
+                                Logger.Write($"A downloaded version was found by '{provider}' on '{dirInfo.FullName}'");
+                                Logger.CompleteOperation("Is Dll mode available for " + version + " on third party");
+
+                                return provider;
+
+                            }
+                        }
+                    }
+                    Logger.Write("Checking Online");
+                    foreach (var provider in AllThirdPartyUsernames)
+                    {
+
+                        var path = Path.Combine(baseThirdPartyPath, provider, "Dll");
+                        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                        var recordsPath = Path.Combine(path, "Records.txt");
+                        if (File.Exists(recordsPath)) File.Delete(recordsPath);
+                        try
+                        {
+
+                            client.DownloadFile($"https://raw.githubusercontent.com/{provider}/mcenterdlls/main/main", recordsPath);
+
+                            Logger.Write("Record.txt downloaded from "+provider);
+                        }
+                        catch (WebException)
+                        {
+                            Logger.Write("Error Occured while downloading dll records from "+provider);
+                        }
+
+
+                        var rawContent = File.ReadAllText(recordsPath);
+                        var rawContentCopy = rawContent;
+                        for (int index = 0; index < 10; ++index)
+                            rawContentCopy = rawContentCopy.Replace(index.ToString(), "");
+                        rawContentCopy = rawContentCopy.Replace(".", "");
+                        rawContentCopy = rawContentCopy.Replace(",", "");
+                        var uselessCharArray = rawContentCopy.ToCharArray();
+                        foreach (var uselessChar in uselessCharArray)
+                        {
+
+                            rawContent = rawContent.Replace(uselessChar.ToString(), "");
+                        }
+                        var Records = rawContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (var entry in Records)
+                        {
+
+                            if (entry == version)
+                            {
+                                Logger.Write("The requested version is available online by" + provider);
+                                Logger.CompleteOperation("Is Dll mode available for " + version + " on third party");
+
+                                return provider;
+                            }
+                        }
+                        
+                       
+                    }
+
+                }
+                Logger.Write("Unsupported Version");
+                Logger.CompleteOperation("Is Dll mode available for " + version + " on third party");
+
+                return null;
+
+                
+
+
+            }
+
             public static  string GetVersion()
             {
 
@@ -389,21 +529,26 @@ namespace MCenters
             {
                 ReportProgress("Downloading " + Version, 25);
                 Logger.StartOperation("Download of version " + Version);
-                
-                if (Directory.Exists(baseDllPath + "\\" + Version))
-                    Directory.Delete(baseDllPath + "\\" + Version);
+                var versionPath = Path.Combine(SelectedPath, Version);
+                if (Directory.Exists(versionPath))
+                    Directory.Delete(versionPath);
 
-                Directory.CreateDirectory(baseDllPath + "\\" + Version + "\\x64");
-                Directory.CreateDirectory(baseDllPath + "\\" + Version + "\\x86");
-                var x64DllDownload = Dllx64URL.Replace("{identity}", Version);
+                var x64DllFolder = Path.Combine(versionPath, "x64");
+                var x86DllFolder = Path.Combine(versionPath, "x86");
 
-                var x86DllDownload = Dllx86URL.Replace("{identity}", Version);
+                var x64DllFile = Path.Combine(x64DllFolder, "Windows.ApplicationModel.Store.dll");
+                var x86DllFile = Path.Combine(x86DllFolder, "Windows.ApplicationModel.Store.dll");
+                Directory.CreateDirectory(x64DllFolder);
+                Directory.CreateDirectory(x86DllFolder);
+                var x64DllDownloadUrl = Dllx64URL.Replace("{identity}", Version).Replace("{username}",SelectedProviderName);
+
+                var x86DllDownloadUrl = Dllx86URL.Replace("{identity}", Version).Replace("{username}", SelectedProviderName); ;
                 try
                 {
                     client.Proxy = WebRequest.DefaultWebProxy;
 
-                    client.DownloadFile(x64DllDownload, baseDllPath + "\\" + Version + "\\x64\\Windows.ApplicationModel.Store.dll");
-                    client.DownloadFile(x86DllDownload, baseDllPath + "\\" + Version + "\\x86\\Windows.ApplicationModel.Store.dll");
+                    client.DownloadFile(x64DllDownloadUrl, x64DllFile);
+                    client.DownloadFile(x86DllDownloadUrl, x86DllFile);
                     Logger.Write("Files Downloaded");
                     Logger.CompleteOperation("Download of version " + Version);
 
@@ -579,14 +724,14 @@ namespace MCenters
                 
                 if (Is64)
                 {
-                    File.Copy(baseDllPath + "\\" + Version + "/x64/Windows.ApplicationModel.Store.dll", Path);
+                    File.Copy(SelectedPath + "\\" + Version + "/x64/Windows.ApplicationModel.Store.dll", Path);
 
                     Logger.Write("File Replaced");
                     Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
                     
                     return;
                 }
-                File.Copy(baseDllPath + "\\" + Version + "/x86/Windows.ApplicationModel.Store.dll", Path);
+                File.Copy(SelectedPath + "\\" + Version + "/x86/Windows.ApplicationModel.Store.dll", Path);
 
                 Logger.Write("File Replaced");
                 Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);

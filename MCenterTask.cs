@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -30,7 +32,23 @@ namespace MCenters
 
         }
 
+        public static async Task<InvokeResults> CreateAndRunBasicOnThread(Action action)
+        {
+            var result = InvokeResults.busy;
+            var th = new Thread(async () =>
+            {
+                var task = new MCenterTask(action);
+            retry:;
+                result = await task.Invoke();
 
+
+                if (result == InvokeResults.busy) goto retry;
+            });
+              th.Start();
+            while (th.ThreadState != ThreadState.Stopped)
+                await Task.Delay(1000);
+            return result;
+        }
 
 
         public async Task<InvokeResults> Invoke(Type[] handledExceptionTypes = null, bool HandleAllExceptions = false, bool retryable = true)
@@ -173,7 +191,8 @@ namespace MCenters
                     };
                     var content = Screens.Window.Content;
                     Screens.SetScreen(Screens.ErrorScreen);
-                    while (ShouldRetry == null) await Task.Delay(100);
+                    while (ShouldRetry == null)
+                        await Task.Delay(100);
                     Screens.SetScreen(content);
                     Screens.ErrorScreen.Reset();
                     

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,9 +37,11 @@ namespace MCenters
 
 
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
+        private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
-
+            var provider = thirdPartyTextBox.Text.ToLower();
+         var result=  await Methods.DllMethod.TryAddThirdParty(provider);
+            thirdPartyManagementStatus.Text = result ? $"Successfully Added: {provider}" : $"Failed to Add: {provider}";
         }
 
 
@@ -53,6 +56,7 @@ namespace MCenters
         private void DllButton_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", Methods.DllMethod.baseDllPath);
+            if(Directory.Exists(Methods.DllMethod.baseThirdPartyPath)) Process.Start("explorer.exe", Methods.DllMethod.baseThirdPartyPath);
         }
 
 

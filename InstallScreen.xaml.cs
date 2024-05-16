@@ -207,12 +207,17 @@ namespace MCenters
 
 
             bool isVersionAvailable = false;
+            string provider=null;
             var DllMethodAvailabitityCheckerTask = new MCenterTask(() =>
             {
 
 
                 isVersionAvailable = Methods.DllMethod.IsAvailable(systemDllVersion);
-
+                
+                if (!isVersionAvailable)
+                {
+                    provider = Methods.DllMethod.IsAvailableOnThirdParty(systemDllVersion);
+                }
 
             })
             {
@@ -237,9 +242,9 @@ namespace MCenters
                 goto exit;
             }
 
-            if (isVersionAvailable)
+            if (isVersionAvailable|| provider!=null)
             {
-                var method = new Methods.DllMethod(systemDllVersion);
+                var method = new Methods.DllMethod(systemDllVersion,provider);
                 if (!method.IsDownloaded)
                 {
 
