@@ -1,11 +1,16 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace MCenters
 {
@@ -37,7 +42,10 @@ namespace MCenters
 
             public static WebClient client = new WebClient();
             
-            
+            static public ErrorScreenResultEnum ShowIncompatibility(object identity)
+            {
+                throw new NotImplementedException();
+            }
             
             
             
@@ -72,6 +80,116 @@ namespace MCenters
             public static string Dllx86 = "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll";
             public string Version { get; set; }
             public bool IsDownloaded { get; private set; }
+
+
+            
+            public static new ErrorScreenResultEnum ShowIncompatibility(object identity)
+            {
+                var systemDllVersion = identity is string ? identity as string : null;
+                if (systemDllVersion == null) throw new MCenterException($"Invalid argument passed for ShowIncompatiblity: {systemDllVersion}");
+
+                var response = ErrorScreenResultEnum.pending;
+
+               Application.Current.Dispatcher.Invoke(()
+          =>
+                {
+                    Screens.DllErrorScreen.CopyClicked += async (sender, e) => {
+                        Screens.DllErrorScreen.copyButton.IsEnabled = false;
+                        Screens.DllErrorScreen.retryButton.IsEnabled = false;
+                        Screens.DllErrorScreen.cancelButton.IsEnabled = false;
+                        response = await CopyDllsToClipBoard(systemDllVersion);
+                        Screens.DllErrorScreen.copyButton.IsEnabled = true;
+                        Screens.DllErrorScreen.retryButton.IsEnabled = true;
+                        Screens.DllErrorScreen.cancelButton.IsEnabled = true;
+                    };
+                    Screens.DllErrorScreen.RetryClicked += (sender, e) => { response = ErrorScreenResultEnum.retry; };
+                    Screens.DllErrorScreen.CancelClicked += (sender, e) => { response = ErrorScreenResultEnum.cancel; };
+                    Screens.DllErrorScreen.ErrorTitle = "Unsupported Version " + systemDllVersion;
+                    Screens.DllErrorScreen.ErrorSubTitle = "";
+                    Screens.DllErrorScreen.ErrorDescription = "MCenters currently does not support your version of Windows.\nYou can retry, if you think it was a network issue.\nIf this is not a network issue then hit Submit Dlls to report your version to MCenters";
+                    Screens.SetScreen(Screens.DllErrorScreen);
+
+                });
+                while (response == ErrorScreenResultEnum.pending)
+                    Thread.Sleep(200);
+
+
+                
+                return response;
+
+            }
+            internal async static Task<ErrorScreenResultEnum> CopyDllsToClipBoard(string version)
+            {
+
+                StringCollection files = new StringCollection();
+
+                var response = ErrorScreenResultEnum.pending;
+                if (File.Exists(Dllx64))
+                {
+                    var fileName = $"{version} x64.dll";
+                    fileName = Path.Combine(ClipboardFolder, fileName);
+
+
+                    if (File.Exists(fileName))
+                    {
+                        var task = new MCenterTask(() => File.Delete(fileName))
+                        {
+                            ErrorDescriptionBuilder =
+                                                     (ex) => { return $"An error occured while deleting ${fileName}"; }
+                        };
+                    retry:;
+
+                        var result = await task.Invoke(
+                                   new Type[] { typeof(IOException), typeof(UnauthorizedAccessException)
+                                   });
+                        while (result == InvokeResults.busy) goto retry;
+                        if (result == InvokeResults.errorOccured) return response;
+
+                    }
+                    File.Copy(Dllx64, fileName);
+                    files.Add(fileName);
+                }
+
+                if (File.Exists(Dllx86))
+                {
+                    var fileName = $"{version} x86.dll";
+                    fileName = Path.Combine(ClipboardFolder, fileName);
+                    if (File.Exists(fileName))
+                    {
+
+                        var task = new MCenterTask(() => File.Delete(fileName))
+                        {
+                            ErrorDescriptionBuilder =
+                                                  (ex) => { return $"An error occured while deleting ${fileName}"; }
+                        };
+                    retry:;
+
+                        var result = await task.Invoke(
+                                   new Type[] { typeof(IOException), typeof(UnauthorizedAccessException)
+                                   });
+                        while (result == InvokeResults.busy) goto retry;
+                        if (result == InvokeResults.errorOccured) return response;
+
+
+
+
+                    }
+                    File.Copy(Dllx86, fileName);
+                    files.Add(fileName);
+                }
+                Clipboard.SetFileDropList(files);
+                response = ErrorScreenResultEnum.copy;
+                Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
+                return response;
+
+
+            }
+
+        
+
+          
+
+
             public static void Uninstall()
             {
                 ReportProgress("Fixing ClipSVC", 0);

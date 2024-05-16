@@ -314,50 +314,36 @@ namespace MCenters
             }
             else
             {
-                response = ErrorScreenResultEnum.pending;
-                Dispatcher.Invoke(()
-          =>
-                {
-                    Screens.DllErrorScreen.CopyClicked += DllErrorScreen_CopyClicked;
-                    Screens.DllErrorScreen.RetryClicked += DllErrorScreen_RetryClicked;
-                    Screens.DllErrorScreen.CancelClicked += DllErrorScreen_CancelClicked;
-                    Screens.DllErrorScreen.ErrorTitle = "Unsupported Version " + systemDllVersion;
-                    Screens.DllErrorScreen.ErrorSubTitle = "";
-                    Screens.DllErrorScreen.ErrorDescription = "MCenters currently does not support your version of Windows.\nYou can retry, if you think it was a network issue.\nIf this is not a network issue then hit Submit Dlls to report your version to MCenters";
-                    Screens.SetScreen(Screens.DllErrorScreen);
-
-                });
-                Version = systemDllVersion;
-                while (response == ErrorScreenResultEnum.pending)
-                    Thread.Sleep(200);
-
-
+                var response = Methods.DllMethod.ShowIncompatibility(systemDllVersion);
                 switch (response)
                 {
                     case ErrorScreenResultEnum.retry:
-                        Dispatcher.Invoke(()
+                        Application.Current.Dispatcher.Invoke(()
        =>
                         {
-                            Status.Text = "Waiting to Start";
-                            progressRing.Value = 0;
+
+
                             Screens.SetScreen(Screens.InstallScreen);
-                            Screens.DllErrorScreen.CopyClicked -= DllErrorScreen_CopyClicked;
-                            Screens.DllErrorScreen.RetryClicked -= DllErrorScreen_RetryClicked;
-                            Screens.DllErrorScreen.CancelClicked -= DllErrorScreen_CancelClicked;
+                            ProgressValue = 0;
+                            progressRing.Value = 0;
+                            Status.Text = "Waiting to Start";
+                            
+                            Screens.DllErrorScreen.RemoveAllHandles();
 
                         });
                         goto retry;
+
                     case ErrorScreenResultEnum.cancel:
                     case ErrorScreenResultEnum.copy:
-                        Dispatcher.Invoke(()
+                        Application.Current.Dispatcher.Invoke(()
       =>
                         {
-                            Status.Text = "Waiting to Start";
-                            progressRing.Value = 0;
+
                             Screens.SetScreen(Screens.MainScreen);
-                            Screens.DllErrorScreen.CopyClicked -= DllErrorScreen_CopyClicked;
-                            Screens.DllErrorScreen.RetryClicked -= DllErrorScreen_RetryClicked;
-                            Screens.DllErrorScreen.CancelClicked -= DllErrorScreen_CancelClicked;
+                            ProgressValue = 0;
+                            progressRing.Value = 0;
+                            Status.Text = "Waiting to Start";
+                            Screens.DllErrorScreen.RemoveAllHandles();
 
                         });
                         break;
@@ -371,103 +357,10 @@ namespace MCenters
             Methods.Method.ProgressChanged -= DllMethod_ProgressChanged;
 
         }
-        string Version;
+        
 
-        ErrorScreenResultEnum response = ErrorScreenResultEnum.pending;
-        private void DllErrorScreen_CancelClicked(object sender, EventArgs e)
-        {
-            response = ErrorScreenResultEnum.cancel;
-        }
-
-        private void DllErrorScreen_RetryClicked(object sender, EventArgs e)
-        {
-            response = ErrorScreenResultEnum.retry;
-        }
-        async Task CopyDllsToClipBoard()
-        {
-
-            StringCollection files = new StringCollection();
-
-
-            if (File.Exists(Methods.DllMethod.Dllx64))
-            {
-                var fileName = $"{Version} x64.dll";
-                fileName = Path.Combine(Methods.Method.ClipboardFolder, fileName);
-
-
-                if (File.Exists(fileName))
-                {
-                    var task = new MCenterTask(() => File.Delete(fileName))
-                    {
-                        ErrorDescriptionBuilder =
-                                                 (ex) => { return $"An error occured while deleting ${fileName}"; }
-                    };
-                retry:;
-
-                    var result = await task.Invoke(
-                               new Type[] { typeof(IOException), typeof(UnauthorizedAccessException)
-                               });
-                    while (result == InvokeResults.busy) goto retry;
-                    if (result == InvokeResults.errorOccured) return;
-
-                }
-                File.Copy(Methods.DllMethod.Dllx64, fileName);
-                await Task.Delay(15000);
-                files.Add(fileName);
-            }
-
-            if (File.Exists(Methods.DllMethod.Dllx86))
-            {
-                var fileName = $"{Version} x86.dll";
-                fileName = Path.Combine(Methods.Method.ClipboardFolder, fileName);
-                if (File.Exists(fileName))
-                {
-
-                    var task = new MCenterTask(() => File.Delete(fileName))
-                    {
-                        ErrorDescriptionBuilder =
-                                              (ex) => { return $"An error occured while deleting ${fileName}"; }
-                    };
-                retry:;
-
-                    var result = await task.Invoke(
-                               new Type[] { typeof(IOException), typeof(UnauthorizedAccessException)
-                               });
-                    while (result == InvokeResults.busy) goto retry;
-                    if (result == InvokeResults.errorOccured) return;
-
-
-
-
-                }
-                File.Copy(Methods.DllMethod.Dllx86, fileName);
-                files.Add(fileName);
-            }
-            Clipboard.SetFileDropList(files);
-            response = ErrorScreenResultEnum.copy;
-            Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
-            return;
-
-
-        }
-
-        private void CancelPostRequest(object sender, EventArgs e)
-        {
-            response = ErrorScreenResultEnum.cancel;
-        }
-
-        private async void RetyFormSend(object sender, EventArgs e)
-        {
-            await CopyDllsToClipBoard();
-        }
-
-        private async void DllErrorScreen_CopyClicked(object sender, EventArgs e)
-        {
-
-
-            await CopyDllsToClipBoard();
-
-        }
+        
+       
 
         async Task Install()
         {
