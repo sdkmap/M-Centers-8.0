@@ -31,44 +31,20 @@ namespace MCenters
             }
 
 
-            
-            
-            public static string Dllx64URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x64/Windows.ApplicationModel.Store.dll";
+            public static string ClipboardFolder = "C:\\ProgramData\\MCenters\\Clipboard\\";
 
-            public static string Dllx86URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x86/Windows.ApplicationModel.Store.dll";
+            
 
             public static WebClient client = new WebClient();
             
-            public static string ClipboardFolder = "C:\\ProgramData\\MCenters\\Clipboard\\";
-            public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
-            public static string baseExePath = "C:\\ProgramData\\MCenters\\Methods\\Exe";
-            public static string Dllx64 = "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll";
-            public static string Dllx86 = "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll";
-            public string Version { get; set; }
+            
+            
+            
+            
 
 
-            public static bool IsUsable()
-            {
+            
 
-                return false;
-            }
-            public static string GetVersion()
-            {
-                return "";
-            }
-            public static bool IsAvailable(string version)
-            {
-                throw new NotImplementedException("Method IsAvailable needs to be implemented in derived classes.");
-            }
-            public bool IsDownloaded { get; set; }
-            public virtual bool Download()
-            {
-                return true;
-            }
-            public virtual bool Install()
-            {
-                return true;
-            }
 
 
 
@@ -77,6 +53,7 @@ namespace MCenters
         }
         public class ExeMethod : Method
         {
+            public static string baseExePath = "C:\\ProgramData\\MCenters\\Methods\\Exe";
             public ExeMethod(string version)
             {
                 throw new NotImplementedException("Exe Method not implemented");
@@ -86,6 +63,15 @@ namespace MCenters
         }
         public class DllMethod : Method
         {
+            public static string Dllx64URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x64/Windows.ApplicationModel.Store.dll";
+
+            public static string Dllx86URL = "https://raw.githubusercontent.com/tinedpakgamer/mcenterdlls/main/{identity}/x86/Windows.ApplicationModel.Store.dll";
+
+            public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
+            public static string Dllx64 = "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll";
+            public static string Dllx86 = "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll";
+            public string Version { get; set; }
+            public bool IsDownloaded { get; private set; }
             public static void Uninstall()
             {
                 ReportProgress("Fixing ClipSVC", 0);
@@ -108,16 +94,11 @@ namespace MCenters
 
             static void UninstallClipSVC()
             {
-                try
-                {
+                
                     RegistryKey registryKey = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\ClipSVC\\Parameters", true);
                     registryKey.SetValue("ServiceDll", "%SystemRoot%\\System32\\ClipSVC.dll", RegistryValueKind.ExpandString);
                     registryKey.Close();
-                }
-                catch (Exception)
-                {
-
-                }
+                
             }
             static void SfcFileScan(string fileName)
             {
@@ -130,7 +111,12 @@ namespace MCenters
                     EnableRaisingEvents = true,
                     
                 };
-                ; p.OutputDataReceived += SfcScanOutputReceieved;
+                p.OutputDataReceived += (sender, e)=>
+                {
+                    if (string.IsNullOrWhiteSpace(e.Data)) return;
+                    var asciiData = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(e.Data));
+                    Logger.Write("Output Recieved:\t" + asciiData);
+                };
                
                 p.Start();
                 p.BeginOutputReadLine();
@@ -140,12 +126,7 @@ namespace MCenters
 
             }
 
-            private static void SfcScanOutputReceieved(object sender, DataReceivedEventArgs e)
-            {
-                if (String.IsNullOrWhiteSpace(e.Data)) return;
-                var asciiData=Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(e.Data));
-                Logger.Write("Output Recieved:\t" + asciiData);
-            }
+            
 
 
 
@@ -180,7 +161,7 @@ namespace MCenters
                 }
             }
 
-            public static new bool IsAvailable(string version)
+            public static bool IsAvailable(string version)
             {
                 ReportProgress("Checking  Mod Support for " + version, 8.33);
                 
@@ -259,7 +240,7 @@ namespace MCenters
 
 
             }
-            public static new string GetVersion()
+            public static  string GetVersion()
             {
 
                 ReportProgress("Fetching System Dll version", 0);
@@ -280,13 +261,9 @@ namespace MCenters
                 return k;
 
             }
-            public static new bool IsUsable()
-            {
+          
 
-                return true;
-            }
-
-            public override bool Download()
+            public  bool Download()
             {
                 ReportProgress("Downloading " + Version, 25);
                 Logger.StartOperation("Download of version " + Version);
@@ -345,8 +322,23 @@ namespace MCenters
                         EnableRaisingEvents = true
                     };
 
-                    p.OutputDataReceived += PermissionTakingOutput;
-                    p.ErrorDataReceived += PermissionTakingError;
+                    p.OutputDataReceived += (sender, e)=>
+                    {
+
+
+                        if (String.IsNullOrWhiteSpace(e.Data))
+                            return;
+
+                        Logger.Write("Output Recieved:\t" + e.Data);
+                    };
+                    p.ErrorDataReceived += (sender,e)=>
+                    {
+                        if (String.IsNullOrWhiteSpace(e.Data))
+                            return;
+
+                        Logger.Write("Error Recieved:\t" + e.Data);
+
+                    };
 
                     p.Start();
                     Logger.Write($"Process Started:\t{executor} {arguments}");
@@ -372,26 +364,6 @@ namespace MCenters
                 }
             }
 
-            private void PermissionTakingError(object sender, DataReceivedEventArgs e)
-            {
-                if (String.IsNullOrWhiteSpace(e.Data))
-                    return;
-
-                Logger.Write("Error Recieved:\t" + e.Data);
-                
-            }
-
-            private void PermissionTakingOutput(object sender, DataReceivedEventArgs e)
-            {
-                
-                
-                if (String.IsNullOrWhiteSpace(e.Data))
-                    return;
-
-                Logger.Write("Output Recieved:\t" + e.Data);
-                
-
-            }
             private bool VerifyPermission(string path)
             {
                 Logger.StartOperation("Verify Permissions of " + path);
@@ -497,7 +469,7 @@ namespace MCenters
                 Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
             }
 
-            public override bool Install()
+            public  bool Install()
             {
                 int i = 0;
                 bool Is64 = Environment.Is64BitProcess;

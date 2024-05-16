@@ -239,7 +239,7 @@ namespace MCenters
 
             if (isVersionAvailable)
             {
-                Methods.Method method = new Methods.DllMethod(systemDllVersion);
+                var method = new Methods.DllMethod(systemDllVersion);
                 if (!method.IsDownloaded)
                 {
 
@@ -383,13 +383,13 @@ namespace MCenters
         {
             response = ErrorScreenResultEnum.retry;
         }
-        async Task PostData()
+        async Task CopyDllsToClipBoard()
         {
 
             StringCollection files = new StringCollection();
 
 
-            if (File.Exists(Methods.Method.Dllx64))
+            if (File.Exists(Methods.DllMethod.Dllx64))
             {
                 var fileName = $"{Version} x64.dll";
                 fileName = Path.Combine(Methods.Method.ClipboardFolder, fileName);
@@ -411,12 +411,12 @@ namespace MCenters
                     if (result == InvokeResults.errorOccured) return;
 
                 }
-                File.Copy(Methods.Method.Dllx64, fileName);
+                File.Copy(Methods.DllMethod.Dllx64, fileName);
                 await Task.Delay(15000);
                 files.Add(fileName);
             }
 
-            if (File.Exists(Methods.Method.Dllx86))
+            if (File.Exists(Methods.DllMethod.Dllx86))
             {
                 var fileName = $"{Version} x86.dll";
                 fileName = Path.Combine(Methods.Method.ClipboardFolder, fileName);
@@ -440,7 +440,7 @@ namespace MCenters
 
 
                 }
-                File.Copy(Methods.Method.Dllx86, fileName);
+                File.Copy(Methods.DllMethod.Dllx86, fileName);
                 files.Add(fileName);
             }
             Clipboard.SetFileDropList(files);
@@ -458,14 +458,14 @@ namespace MCenters
 
         private async void RetyFormSend(object sender, EventArgs e)
         {
-            await PostData();
+            await CopyDllsToClipBoard();
         }
 
         private async void DllErrorScreen_CopyClicked(object sender, EventArgs e)
         {
 
 
-            await PostData();
+            await CopyDllsToClipBoard();
 
         }
 

@@ -52,7 +52,7 @@ namespace MCenters
 
         private void DllButton_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("explorer.exe", Methods.Method.baseDllPath);
+            Process.Start("explorer.exe", Methods.DllMethod.baseDllPath);
         }
 
 
