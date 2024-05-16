@@ -229,9 +229,9 @@ namespace MCenters
                 Logger.StartOperation("Restoring " + fileName);
                 var p = new Process
                 {
-                    StartInfo = new ProcessStartInfo(sfcPath, " /scanfile=" + fileName) { UseShellExecute = false, RedirectStandardOutput = true, StandardOutputEncoding=Encoding.Unicode },
+                    StartInfo = new ProcessStartInfo(sfcPath, " /scanfile=" + fileName) { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true, StandardOutputEncoding=Encoding.Unicode },
                     EnableRaisingEvents = true,
-                    
+                                       
                 };
                 p.OutputDataReceived += (sender, e)=>
                 {
@@ -432,6 +432,7 @@ namespace MCenters
                     var icaclsCmd = $"icacls {path} /grant \"{Environment.UserName}\":F";
                     var Info = new ProcessStartInfo(executor, arguments)
                     {
+                        CreateNoWindow= true,
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
