@@ -28,7 +28,7 @@
     <Grid>
 
         <Frame x:Name="MainContent" NavigationUIVisibility="Hidden" Grid.RowSpan="2"/>
-        <Grid x:Name="DialogBox"  >
+        <Grid x:Name="DialogBox"  Visibility="Hidden" >
             <Grid.Background>
                 <SolidColorBrush Color="WhiteSmoke" Opacity="0.006"/>
             </Grid.Background>
