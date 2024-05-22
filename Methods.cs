@@ -217,6 +217,7 @@ namespace MCenters
                     files.Add(fileName);
                 }
                 Clipboard.SetFileDropList(files);
+                Screens.AddNotificationToQueue("Copied to Clipboard", "Files were copied to clipboard\nNow opening discord in browser");
                 response = ErrorScreenResultEnum.copy;
                 Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
                 return response;
@@ -244,10 +245,17 @@ namespace MCenters
                     SfcFileScan("C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll");
                 }
                 ReportProgress("Uninstall Successful", 100);
-                Process.Start(new ProcessStartInfo("shutdown", "/r /t 600 /c \"Restarting in 10 minutes to uninstall Cracked Dlls\" /soft /d p:4:1")
+
+      
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    CreateNoWindow = true,
-                    UseShellExecute = false
+                    var restartAction = new Action(() => Process.Start(new ProcessStartInfo("shutdown", "/r /t 10 /c \"Restarting to uninstall Cracked Dlls\" /soft /d p:4:1")
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    }));
+
+                    Screens.ShowDialog("Uninstall DLL Method", "A restart is required in order to finish uninstalling cracked DLLs", "Restart Later", "Restart Now", restartAction, null);
                 });
 
             }

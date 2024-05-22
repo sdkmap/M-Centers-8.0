@@ -125,7 +125,7 @@ namespace MCenters
                         Clipboard.SetText(clipboardMessage);
                         Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
                     };
-                    var content = Screens.Window.Content;
+                    var content = Screens.GetScreen();
                     Screens.SetScreen(Screens.ErrorScreen);
                     while (ShouldRetry == null) await Task.Delay(100);
                     Screens.SetScreen(content);
@@ -187,9 +187,10 @@ namespace MCenters
 
 
                         Clipboard.SetText(clipboardMessage);
+                        Screens.AddNotificationToQueue("Copied to Clipboard", "Error was copied to clipboard\nNow opening discord in browser");
                         Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP");
                     };
-                    var content = Screens.Window.Content;
+                    var content = Screens.GetScreen();
                     Screens.SetScreen(Screens.ErrorScreen);
                     while (ShouldRetry == null)
                         await Task.Delay(100);

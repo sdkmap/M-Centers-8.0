@@ -96,6 +96,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CommonPage.xaml.cs">
+      <DependentUpon>CommonPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Logger.cs" />
@@ -104,6 +107,10 @@
       <DependentUpon>Setting Screen.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities.cs" />
+    <Page Include="CommonPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ErrorScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

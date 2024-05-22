@@ -40,7 +40,8 @@ namespace MCenters
             
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
             Screens.SettingsScreen = new Setting_Screen();
-            Screens.MainScreen = this.Content;
+            Screens.MainScreen = this.Content as UIElement;
+            Screens.MainWindow = this;
             Screens.ErrorScreen = new ErrorScreen();
             Screens.DllErrorScreen = new ErrorScreen
             {
@@ -50,7 +51,11 @@ namespace MCenters
             installButton.ConnectedImage = installIcon;
             uninstallButton.ConnectedImage = uninstallIcon;
             modOptionsButton.ConnectedImage = modOptionsIcon;
-            Screens.Window = this;
+            var commonPage=new CommonPage();
+            this.Content = commonPage;
+
+            Screens.InitializeCommonPage(commonPage);
+            Screens.SetScreen(Screens.MainScreen);
             if (!Directory.Exists(Methods.Method.ClipboardFolder)) Directory.CreateDirectory(Methods.Method.ClipboardFolder);
 
             EnableUninstall = uninstallButton.GetBindingExpression(IsEnabledProperty);
@@ -62,19 +67,19 @@ namespace MCenters
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            Content = Screens.SettingsScreen;
+            Screens.SetScreen(Screens.SettingsScreen);
         }
 
 
 
         private void InstallButton_Click(object sender, RoutedEventArgs e)
         {
-            Content = Screens.InstallScreen;
+            Screens.SetScreen(Screens.InstallScreen);
         }
 
         private void UninstallButton_Click(object sender, RoutedEventArgs e)
         {
-            Content = Screens.UninstallScreen;
+            Screens.SetScreen(Screens.UninstallScreen);
         }
 
         private void AcrylicWindow_Closed(object sender, EventArgs e)

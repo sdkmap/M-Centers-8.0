@@ -1,22 +1,45 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
 
 
 namespace MCenters
 {
-
+    public class Notification
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+    }
 
     public static class Screens
     {
-        public static MainWindow Window { get; set; }
-        public static void SetScreen(object screen)
+        public static MainWindow MainWindow { get; set; }
+        static Frame MainContent { get; set; }
+        static Grid FrontContent { get; set; }
+        static CommonPage CommonPage { get; set; }
+        public static Notification AddNotificationToQueue(string title, string message)=> CommonPage.AddNotificationToQueue(title, message);
+        public static void ShowDialog(string title, string description, string cancelButtonText, string okButtonText, Action dialogOKAction, Action dialogCancelAction)=> CommonPage.ShowDialog(title,description,cancelButtonText, okButtonText, dialogOKAction,dialogCancelAction);
+        public static void InitializeCommonPage(CommonPage commonPage)
         {
-            if(object.ReferenceEquals(screen, Window.Content)) return;
-            Window.Content = screen;
+
+            CommonPage= commonPage;
+            MainContent=CommonPage.MainContent;
+            FrontContent = CommonPage.FrontContent;
+        }
+        
+        public static void SetScreen(UIElement screen)
+        {
+            
+            if(ReferenceEquals(screen,MainContent.Content)) return;
+            
+            MainContent.Content= screen;
 
         }
-        public static object MainScreen { get; set; }
-        public static object SettingsScreen { get; set; }
+        public static UIElement GetScreen()=> MainContent.Content as UIElement;
+        public static UIElement MainScreen { get; set; }
+        public static UIElement SettingsScreen { get; set; }
         public static ErrorScreen ErrorScreen { get; set; }
         public static InstallScreen InstallScreen { get; set; }
         public static InstallScreen UninstallScreen { get; set; }

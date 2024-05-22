@@ -65,7 +65,7 @@ namespace MCenters
                 {
                     ButtonEnabled = true;
                     StartEnabled.UpdateTarget();
-                    Screens.Window.EnableUninstall.UpdateTarget();
+                    Screens.MainWindow.EnableUninstall.UpdateTarget();
 
                 }
                 progressValue = value;
@@ -99,25 +99,25 @@ namespace MCenters
             {
                 ButtonEnabled = false;
                 StartEnabled.UpdateTarget();
-                Screens.Window.EnableUninstall.UpdateTarget();
+                Screens.MainWindow.EnableUninstall.UpdateTarget();
 
                 await Install();
 
                 ButtonEnabled = true;
                 StartEnabled.UpdateTarget();
-                Screens.Window.EnableUninstall.UpdateTarget();
+                Screens.MainWindow.EnableUninstall.UpdateTarget();
             }
             if (Mode == InstallScreenModeEnum.Uninstall)
             {
                 ButtonEnabled = false;
                 StartEnabled.UpdateTarget();
-                Screens.Window.EnableInstall.UpdateTarget();
+                Screens.MainWindow.EnableInstall.UpdateTarget();
 
                 await Uninstall();
 
                 ButtonEnabled = true;
                 StartEnabled.UpdateTarget();
-                Screens.Window.EnableInstall.UpdateTarget();
+                Screens.MainWindow.EnableInstall.UpdateTarget();
             }
 
         }
@@ -359,6 +359,14 @@ namespace MCenters
 
             }
         exit:;
+            Dispatcher.Invoke(() =>
+            {
+                var currentScreen = Screens.GetScreen();
+                if (!ReferenceEquals(currentScreen, this))
+                {
+                    Screens.AddNotificationToQueue("Install DLL Method", Status.Text);
+                }
+            });
             Methods.Method.ProgressChanged -= DllMethod_ProgressChanged;
 
         }
