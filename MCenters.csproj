@@ -212,6 +212,12 @@
   <ItemGroup>
     <Folder Include="nuget\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MCentersLibrary\MCentersLibrary.vcxproj">
+      <Project>{878064e8-080b-4aa2-87ee-2f32a5bed5e3}</Project>
+      <Name>MCentersLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.5.0.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.5.0.0\build\MaterialDesignThemes.targets')" />
 </Project>
