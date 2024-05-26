@@ -5,8 +5,8 @@ namespace MCentersLibrary {
 	public  ref class Functions
 	{
 	
-	public: static void FindLeaReference() {
-		MCentersNative::FindLeaReference();
+	public: static bool FindLeaReference() {
+	 return	MCentersNative::Patchx64Dll();
 	}
 	};
 

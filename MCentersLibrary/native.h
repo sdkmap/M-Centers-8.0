@@ -1,4 +1,4 @@
 
 namespace MCentersNative {
-	void FindLeaReference();
+	bool Patchx64Dll();
 }
