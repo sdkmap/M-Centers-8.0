@@ -10,7 +10,33 @@ namespace MCentersNative {
     const  int SizeOfLeaOpcode = 7;
     const int SizeOfLeaOpcodeWithoutMemoryOffset = 3;
 
+    const char x64CrackOpcodeForServiceStore[] = { 0xb1, 0x00, 0x90 };
 
+
+    bool writeBytesAtAddress(std::fstream& file, ZyanU64 address, const char* data, std::size_t dataSize) {
+        // Open the file for both reading and writing in binary mode
+        if (!file) {
+           
+            return false;
+        }
+
+        // Seek to the specified address
+        file.seekp(static_cast<std::streampos>(address));
+        if (!file) {
+            
+            return false;
+        }
+
+        // Write the data to the file
+        file.write(data, dataSize);
+        if (!file) {
+            
+            return false;
+        }
+        return true;
+    }
+
+    
     bool areStringsEqual(const char* str1, const char* str2) {
         while (*str1 && *str2) {
             if (*str1 != *str2) {
@@ -22,9 +48,24 @@ namespace MCentersNative {
         // Both strings must end at the same time to be equal
         return *str1 == '\0' && *str2 == '\0';
     }
+    bool stringStartsWith(const char* str, const char* prefix) {
+        while (*prefix) {
+            if (*str != *prefix) {
+                return false;
+            }
+            ++str;
+            ++prefix;
+        }
+        return true;
+    }
     void FindLeaReference() {
 
-        std::ifstream file("D:\\Windows.ApplicationModel.Store.dll", std::ios::binary | std::ios::ate);
+        std::fstream file("D:\\Windows.ApplicationModel.Store.dll", std::ios::in | std::ios::out | std::ios::binary);
+        if (!file) {
+
+            return ;
+        }
+        file.seekg(0, std::ios::end); // moving to end to help determine file size
         std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
@@ -33,7 +74,7 @@ namespace MCentersNative {
         if (file.read(buffer.data(), size))
         {
             int num = 1;
-            if (*(char*)&num != 1) return;  // this line ensures code only runs when running in little endian mode, we dont support big endian for now
+            if (*(char*)&num != 1) goto exit;  // this line ensures code only runs when running in little endian mode, we dont support big endian for now
             std::string fileStringMode(buffer.begin(), buffer.end());
             std::string search = "Windows::Services::Store::StoreAppLicense::get_IsTrial";
             auto offset = fileStringMode.find(search);
@@ -62,7 +103,7 @@ namespace MCentersNative {
                     // The runtime address (instruction pointer) was chosen arbitrarily here in order to better 
                     // visualize relative addressing. In your actual program, set this to e.g. the memory address 
                     // that the code being disassembled was read from. 
-                    ZyanU64 runtime_address = 0x0;
+                    ZyanU64 runtime_address = leaAddress;
 
                     // Loop over the instructions in our buffer. 
                     ZyanUSize offset = 0;
@@ -78,7 +119,12 @@ namespace MCentersNative {
                         auto opcode = instruction.text;
                         if (areStringsEqual(opcode,"ret"))
                             break;
-                        auto address = runtime_address;
+                        if (stringStartsWith(opcode, "mov cl, [rcx")) {
+                            auto address = runtime_address;
+                            writeBytesAtAddress(file, address, x64CrackOpcodeForServiceStore, 3);
+                            goto exit;
+                        }
+                        
                         offset += instruction.info.length;
                         runtime_address += instruction.info.length;
                     }
@@ -87,6 +133,9 @@ namespace MCentersNative {
             }
 
         }
+    exit:;
+        file.close();
+        return;
     }
 
 }
