@@ -154,6 +154,7 @@
     <ClInclude Include="net_exports.h" />
     <ClInclude Include="net_pch.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Utility.h" />
     <ClInclude Include="Zydis.h" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +175,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ProgramDatabase</DebugInformationFormat>
     </ClCompile>
+    <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Zydis.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>

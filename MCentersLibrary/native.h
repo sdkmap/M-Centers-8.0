@@ -1,4 +1,10 @@
+#pragma once
+#include <string>
 
 namespace MCentersNative {
-	bool Patchx64Dll();
+	namespace DllMethod {
+		bool Patchx64Dll();
+		bool Patchx86Dll();
+		int GetPlatform(std::string dllFile);
+	}
 }

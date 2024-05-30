@@ -33,6 +33,9 @@
     <ClInclude Include="Zydis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Zydis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
