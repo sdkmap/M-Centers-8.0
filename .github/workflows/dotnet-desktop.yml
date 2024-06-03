@@ -1,10 +1,11 @@
+
 name: Build WPF Application
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   build-x64:
@@ -15,15 +16,19 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup .NET Framework SDK
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4.0.0
       with:
-        dotnet-version: '4.7.2'
+        dotnet-version: 5.0.x
 
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v2
+            
+      
     - name: Restore NuGet Packages
-      run: nuget restore MCenters.csproj
+      run: nuget restore "M Centers 8.0.sln"
 
     - name: Build WPF Application (x64)
-      run: msbuild MCenters.csproj /p:Configuration=Release /p:Platform=x64 /t:Rebuild
+      run: msbuild "M Centers 8.0.sln" /p:Configuration=Release /p:Platform=x64 /t:Rebuild
 
     - name: Publish Artifact (x64)
       uses: actions/upload-artifact@v2
@@ -39,15 +44,18 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup .NET Framework SDK
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '4.7.2'
+        dotnet-version: 5.0.x
+
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v2
 
     - name: Restore NuGet Packages
-      run: nuget restore MCenters.csproj
+      run: nuget restore MCenters\MCenters.csproj
 
     - name: Build WPF Application (x86)
-      run: msbuild MCenters.csproj /p:Configuration=Release /p:Platform=x86 /t:Rebuild
+      run: msbuild "M Centers 8.0.sln" /p:Configuration=Release /p:Platform=x86 /t:Rebuild
 
     - name: Publish Artifact (x86)
       uses: actions/upload-artifact@v2
