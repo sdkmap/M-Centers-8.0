@@ -172,6 +172,7 @@
     <ClInclude Include="net_exports.h" />
     <ClInclude Include="net_pch.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Zydis.h" />
   </ItemGroup>
@@ -220,6 +221,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
