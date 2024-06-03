@@ -44,6 +44,7 @@ namespace MCenters
         public static InstallScreen InstallScreen { get; set; }
         public static InstallScreen UninstallScreen { get; set; }
         public static ErrorScreen DllErrorScreen { get; set; }
+        public static ModOptionsPage ModOptionsPage { get; set; }
 
     }
 }

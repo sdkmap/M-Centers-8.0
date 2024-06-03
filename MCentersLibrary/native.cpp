@@ -72,7 +72,7 @@ namespace MCentersNative {
 			bool result = false;
 			if (!MCentersNative::Utility::IsLittleEndian()) return false;  // this line ensures code only runs when running in little endian mode, we dont support big endian for now
 
-			std::fstream file("D:\\Windows.ApplicationModel.Store.dll", std::ios::in | std::ios::out | std::ios::binary);
+			std::fstream file("C:\\ProgramData\\MCenters\\Methods\\AutoPatch\\x64\\Windows.ApplicationModel.Store.dll", std::ios::in | std::ios::out | std::ios::binary);
 			if (!file) {
 
 				return false;
@@ -95,19 +95,26 @@ namespace MCentersNative {
 
 
 
-					int* offsetInLea = nullptr;
+					int offsetInLea = 0;
+					char* leaOffsetter = reinterpret_cast<char*>(&offsetInLea);
 					while (true) {
-						storeApplicenseGetTrialKeywordReferenceOffset = MCentersNative::Utility::find_pattern_in_array(fileBuffer.data(), x64LeaReferenceOpcodePrefix, fileBuffer.size(), 4, storeApplicenseGetTrialKeywordReferenceOffset + 1);
+						storeApplicenseGetTrialKeywordReferenceOffset = MCentersNative::Utility::find_pattern_in_array(fileBuffer.data(), x64LeaReferenceOpcodePrefix, fileBuffer.size(), 3, storeApplicenseGetTrialKeywordReferenceOffset + 1);
 						if (storeApplicenseGetTrialKeywordReferenceOffset == -1) goto exit;
+						auto startOffset = storeApplicenseGetTrialKeywordReferenceOffset + SizeOfx64LeaOpcodeWithoutMemoryOffset;
+						if (startOffset + 4 > fileBuffer.size())goto exit;
+						leaOffsetter[0] = fileBuffer[startOffset];
+						leaOffsetter[1] = fileBuffer[startOffset+1];
+						leaOffsetter[2] = fileBuffer[startOffset+2];
+						leaOffsetter[3] = fileBuffer[startOffset+3];
 
-						offsetInLea = reinterpret_cast<int*>(fileBuffer.data()) + storeApplicenseGetTrialKeywordReferenceOffset + SizeOfx64LeaOpcodeWithoutMemoryOffset;
-						if (storeApplicenseGetTrialKeywordReferenceOffset + *offsetInLea + SizeOfx64LeaOpcode == storeApplicenseGetTrialKeywordPosition) {
+						
+						if (storeApplicenseGetTrialKeywordReferenceOffset + offsetInLea + SizeOfx64LeaOpcode == storeApplicenseGetTrialKeywordPosition) {
 
 
 							auto dataStartPoint = fileBuffer.data() + storeApplicenseGetTrialKeywordReferenceOffset;
-							size_t size = storeApplicenseGetTrialKeywordReferenceOffset + 100 > fileBuffer.size() ?
+							size_t size = storeApplicenseGetTrialKeywordReferenceOffset + 0x200 > fileBuffer.size() ?
 								fileBuffer.size() - storeApplicenseGetTrialKeywordReferenceOffset :
-								100;
+								0x200;
 							// The runtime address (instruction pointer) was chosen arbitrarily here in order to better 
 							// visualize relative addressing. In your actual program, set this to e.g. the memory address 
 							// that the code being disassembled was read from. 
@@ -129,6 +136,9 @@ namespace MCentersNative {
 									if (!MCentersNative::Utility::writeBytesAtAddress(file, runtime_address, CrackOpcode, 3)) goto exit;
 									break;
 								}
+								if (MCentersNative::Utility::areStringsEqual(opcode, "mov cl, 0x00"))
+									break;
+
 								if (MCentersNative::Utility::stringStartsWith(opcode, "ret"))
 									goto exit;
 
@@ -148,19 +158,27 @@ namespace MCentersNative {
 
 
 
-				int* offsetInLea = nullptr;
+				int offsetInLea = 0;
+				char* leaOffsetter = reinterpret_cast<char*>(&offsetInLea);
 				while (true) {
-					licenseInformationServerGetTrialKeywordReferenceOffset = MCentersNative::Utility::find_pattern_in_array(fileBuffer.data(), x64LeaReferenceOpcodePrefix, fileBuffer.size(), 4, licenseInformationServerGetTrialKeywordReferenceOffset + 1);
+					licenseInformationServerGetTrialKeywordReferenceOffset = MCentersNative::Utility::find_pattern_in_array(fileBuffer.data(), x64LeaReferenceOpcodePrefix, fileBuffer.size(), 3, licenseInformationServerGetTrialKeywordReferenceOffset + 1);
 					if (licenseInformationServerGetTrialKeywordReferenceOffset == -1) goto exit;
 
-					offsetInLea = reinterpret_cast<int*>(fileBuffer.data()) + licenseInformationServerGetTrialKeywordReferenceOffset + SizeOfx64LeaOpcodeWithoutMemoryOffset;
-					if (licenseInformationServerGetTrialKeywordReferenceOffset + *offsetInLea + SizeOfx64LeaOpcode == licenseInformationServerGetTrialKeywordPosition) {
+					auto startOffset = licenseInformationServerGetTrialKeywordReferenceOffset + SizeOfx64LeaOpcodeWithoutMemoryOffset;
+					if (startOffset + 4 > fileBuffer.size())goto exit;
+					leaOffsetter[0] = fileBuffer[startOffset];
+					leaOffsetter[1] = fileBuffer[startOffset + 1];
+					leaOffsetter[2] = fileBuffer[startOffset + 2];
+					leaOffsetter[3] = fileBuffer[startOffset + 3];
+
+					
+					if (licenseInformationServerGetTrialKeywordReferenceOffset + offsetInLea + SizeOfx64LeaOpcode == licenseInformationServerGetTrialKeywordPosition) {
 
 
 						auto dataStartPoint = fileBuffer.data() + licenseInformationServerGetTrialKeywordReferenceOffset;
-						size_t size = licenseInformationServerGetTrialKeywordReferenceOffset + 100 > fileBuffer.size() ?
+						size_t size = licenseInformationServerGetTrialKeywordReferenceOffset + 0x200 > fileBuffer.size() ?
 							fileBuffer.size() - licenseInformationServerGetTrialKeywordReferenceOffset :
-							100;
+							0x200;
 
 						// The runtime address (instruction pointer) was chosen arbitrarily here in order to better 
 						// visualize relative addressing. In your actual program, set this to e.g. the memory address 
@@ -185,6 +203,9 @@ namespace MCentersNative {
 								if (!MCentersNative::Utility::writeBytesAtAddress(file, runtime_address, CrackOpcode, 3))goto exit;
 								break;
 							}
+							if (MCentersNative::Utility::areStringsEqual(opcode, "mov cl, 0x00")) 
+								break;
+							
 							if (MCentersNative::Utility::stringStartsWith(opcode, "ret"))
 								goto exit;
 
@@ -223,7 +244,7 @@ namespace MCentersNative {
 			bool result = false;
 			if (!MCentersNative::Utility::IsLittleEndian()) return false;
 
-			std::fstream file("D:\\Windows.ApplicationModel.Store.dll", std::ios::in | std::ios::out | std::ios::binary);
+			std::fstream file("C:\\ProgramData\\MCenters\\Methods\\AutoPatch\\x86\\Windows.ApplicationModel.Store.dll", std::ios::in | std::ios::out | std::ios::binary);
 			if (!file) {
 
 				return false;
@@ -378,6 +399,10 @@ namespace MCentersNative {
 		exit:;
 			file.close();
 			return result;
+		}
+
+		bool IsPresent() {
+			return true;
 		}
 	}
 

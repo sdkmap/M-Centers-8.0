@@ -4,7 +4,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -26,7 +28,7 @@ namespace MCenters
         public BindingExpression EnableInstall;
         public readonly string CurrentVersion = "";
         public MainWindow()
-        {
+        {            
             Screens.InstallScreen = new InstallScreen();
             Screens.UninstallScreen = new InstallScreen
             {
@@ -47,6 +49,7 @@ namespace MCenters
             {
                 CurrentMode = ErrorTypeEnum.ReportDll
             };
+            Screens.ModOptionsPage = new ModOptionsPage();
             settingsButton.ConnectedImage = settingsLogo;
             installButton.ConnectedImage = installIcon;
             uninstallButton.ConnectedImage = uninstallIcon;
@@ -60,6 +63,8 @@ namespace MCenters
 
             EnableUninstall = uninstallButton.GetBindingExpression(IsEnabledProperty);
             EnableInstall = installButton.GetBindingExpression(IsEnabledProperty);
+
+            new Thread(CheckForUpdates).Start();
         }
 
 
@@ -86,6 +91,47 @@ namespace MCenters
         {
             Logger.Write("\n\n\n\n\n\nApplication Closing",true);
             Logger.Close();
+            Environment.Exit(0);
+        }
+
+        private void modOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Screens.SetScreen(Screens.ModOptionsPage);
+        }
+
+       void CheckForUpdates()
+        {
+
+            
+            using(HttpClient client= new HttpClient())
+            {
+
+                try
+                {
+                    var invoker=client.GetAsync("https://raw.githubusercontent.com/tinedpakgamer/M-Centers-8.0/master/CurrentVersion.txt");
+                    invoker.Wait();
+                    var result=invoker.Result;
+                    if (!result.IsSuccessStatusCode) return;
+                    var myVersion = new Version(Process.GetCurrentProcess().MainModule.FileVersionInfo.FileVersion);
+                    var invoker2 = result.Content.ReadAsStringAsync();
+                    invoker2.Wait();
+                    var versionOnNet = new Version(invoker2.Result );
+                    if(versionOnNet > myVersion)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+
+                            Screens.ShowDialog("Update Available", $"Version {versionOnNet.ToString()} is now available for download.", "Later", "Download Now", () => Functions.OpenBrowser("https://mcenters.net/Downloads/M-Centers-8th-Edition/"), null);
+                        });
+
+                    }
+                    
+                }
+                catch(Exception err) when (MCenterTask.IsCriticalException(err))
+                {
+
+                }
+            }
         }
     }
 }

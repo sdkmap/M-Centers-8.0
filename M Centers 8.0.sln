@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCenters", "MCenters\MCente
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MCentersLibrary", "MCentersLibrary\MCentersLibrary.vcxproj", "{878064E8-080B-4AA2-87EE-2F32A5BED5E3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BDF4E8E-1A07-461F-BA11-DBBEAC30CC63}"
+	ProjectSection(SolutionItems) = preProject
+		VC_redist.x64.exe = VC_redist.x64.exe
+		CurrentVersion.txt = CurrentVersion.txt
+		VC_redist.x86.exe = VC_redist.x86.exe
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

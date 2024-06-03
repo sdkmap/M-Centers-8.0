@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -49,7 +50,66 @@ namespace MCenters
                 await Task.Delay(1000);
             return result;
         }
+        public static InvokeResults CreateAndRunBasic(Action action,string ErrorDescription=null)
+        {
+            var result = InvokeResults.busy;
+            
+                var task = new MCenterTask(action) { ErrorDescriptionBuilder=(err)=>ErrorDescription };
+            retry:;
+                var invoker = task.Invoke();
+            invoker.Wait();
+            result = invoker.Result;
 
+                if (result == InvokeResults.busy) goto retry;
+            
+            
+            
+                
+            return result;
+        }
+
+
+        static bool IsMCentersLibraryPresentInvoker()
+        {
+            var action = new Action(() => MCentersLibrary.DllMethod.IsPresent());
+            try
+            {
+                action();
+                return true;
+            }
+            catch (FileNotFoundException err) when (err.HResult == -2147024770)
+            {
+                
+                var is64 = Environment.Is64BitProcess;
+                var str = is64 ? "x64" : "x86";
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+
+
+                    Screens.ShowDialog("Microsoft Visual C++ Redistributable", $"Microsoft Visual C++ Redistributable {str} is required to use this Mod Option", "Later", "Download Now", () => Functions.OpenBrowser("https://www.google.com/"), null);
+                });
+                return false;
+
+            }
+            catch (Exception err) when (IsCriticalException(err))
+            {
+                
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+
+
+                    Screens.ShowDialog(err.GetType().FullName, $"{err.Message} {err.HResult}", "Cancel", "Contact Discord", () => Functions.OpenBrowser("https://discord.gg/sU8qSdP5wP"), null);
+                });
+                return false;
+            }
+            
+        }
+        public  static bool IsMCentersLibraryPresent()
+        {
+            return IsMCentersLibraryPresentInvoker();
+            
+        }
+        
 
         public async Task<InvokeResults> Invoke(Type[] handledExceptionTypes = null, bool HandleAllExceptions = false, bool retryable = true)
         {

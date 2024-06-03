@@ -79,6 +79,10 @@ namespace MCenters
 
             
             public static string baseDllPath = "C:\\ProgramData\\MCenters\\Methods\\Dll";
+            public static string Dllx64AutoPatch = "C:\\ProgramData\\MCenters\\Methods\\AutoPatch\\x64\\Windows.ApplicationModel.Store.dll";
+            public static string Dllx86AutoPatch = "C:\\ProgramData\\MCenters\\Methods\\AutoPatch\\x86\\Windows.ApplicationModel.Store.dll";
+            public static string Dllx64AutoPatchDir = "C:\\ProgramData\\MCenters\\Methods\\AutoPatch\\x64";
+            public static string Dllx86AutoPatchDir = "C:\\ProgramData\\MCenters\\Methods\\AutoPatch\\x86";
             public static string Dllx64 = "C:\\Windows\\System32\\Windows.ApplicationModel.Store.dll";
             public static string Dllx86 = "C:\\Windows\\SysWOW64\\Windows.ApplicationModel.Store.dll";
             public static string baseThirdPartyPath = "C:\\ProgramData\\MCenters\\Methods\\ThirdPartyDlls";
@@ -153,7 +157,44 @@ namespace MCenters
                     Thread.Sleep(200);
 
 
-                
+
+
+
+                switch (response)
+                {
+                    case ErrorScreenResultEnum.retry:
+                        Application.Current.Dispatcher.Invoke(()
+       =>
+                        {
+
+
+                            Screens.SetScreen(Screens.InstallScreen);
+                            ReportProgress("Waiting to Start", 0);
+                            
+
+                            Screens.DllErrorScreen.RemoveAllHandles();
+
+                        });
+                        break;
+
+                    case ErrorScreenResultEnum.cancel:
+                    case ErrorScreenResultEnum.copy:
+                        Application.Current.Dispatcher.Invoke(()
+      =>
+                        {
+
+                            Screens.SetScreen(Screens.MainScreen);
+                            ReportProgress("Waiting to Start", 0);
+                            Screens.DllErrorScreen.RemoveAllHandles();
+
+                        });
+                        break;
+
+
+
+                }
+
+
                 return response;
 
             }
@@ -295,25 +336,32 @@ namespace MCenters
 
             }
 
-            
 
 
+            bool UseAutoPatch = false;
 
 
-            public DllMethod(string DllVersion, string thirdpartyUserName=null)
+            public DllMethod(string DllVersion, string thirdpartyUserName=null,bool useAutoPatch=false)
             {
-                SelectedProviderName = "tinedpakgamer";
-                SelectedPath = baseDllPath;
-                if (thirdpartyUserName != null && AllThirdPartyUsernames.Contains(thirdpartyUserName)) {
-                   var path= Path.Combine(baseThirdPartyPath, thirdpartyUserName, "dll");
-                    if (Directory.Exists(path)) { 
-                        SelectedPath = path;
-                        SelectedProviderName = thirdpartyUserName;
+                UseAutoPatch=useAutoPatch;
+                if (!useAutoPatch)
+                {
+                    SelectedProviderName = "tinedpakgamer";
+                    SelectedPath = baseDllPath;
+                    if (thirdpartyUserName != null && AllThirdPartyUsernames.Contains(thirdpartyUserName))
+                    {
+                        var path = Path.Combine(baseThirdPartyPath, thirdpartyUserName, "dll");
+                        if (Directory.Exists(path))
+                        {
+                            SelectedPath = path;
+                            SelectedProviderName = thirdpartyUserName;
+                        }
                     }
                 }
                 ReportProgress("Starting Mod Installation " + DllVersion, 16.66);
                 
                 Version = DllVersion;
+                if (useAutoPatch) return;
                 if (Directory.Exists(SelectedPath))
                 {
                     IsDownloaded = false;
@@ -729,22 +777,23 @@ namespace MCenters
 
 
                 Logger.StartOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
-                
+                var sourcePath = "";
+                var autopatchmsg = UseAutoPatch ? " with Auto Patch" : "";
                 if (Is64)
-                {
-                    File.Copy(SelectedPath + "\\" + Version + "/x64/Windows.ApplicationModel.Store.dll", Path);
+                
+                    sourcePath = UseAutoPatch ? Dllx64AutoPatch : SelectedPath + "\\" + Version + "/x64/Windows.ApplicationModel.Store.dll";
 
-                    Logger.Write("File Replaced");
-                    Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
-                    
-                    return;
-                }
-                File.Copy(SelectedPath + "\\" + Version + "/x86/Windows.ApplicationModel.Store.dll", Path);
+                else
+                    sourcePath = UseAutoPatch ? Dllx86AutoPatch : SelectedPath + "\\" + Version + "/x86/Windows.ApplicationModel.Store.dll";
+                File.Copy(sourcePath, Path);
 
                 Logger.Write("File Replaced");
-                Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64);
+                Logger.CompleteOperation("Replace file " + Path + "   with x64 Mode: " + Is64+autopatchmsg);
             }
 
+           
+            
+            
             public  bool Install()
             {
                 int i = 0;
@@ -775,6 +824,234 @@ namespace MCenters
                 ReportProgress("Mod Installed", 100);
                 return true;
             }
+
+
+
+           
+
+        public static  void InstallDll()
+            {
+
+
+                
+            retry:;
+                var systemDllVersion = "";
+
+                var systemDllVersionCheckTaskResult = MCenterTask.CreateAndRunBasic(() => { systemDllVersion = Methods.DllMethod.GetVersion(); }, "An error occured while fetching system dll version");
+                if (systemDllVersionCheckTaskResult == InvokeResults.errorOccured)
+                {
+                    ReportProgress("Error occured last time while checking system dll version",0);
+
+
+                    return;
+                }
+
+
+
+
+
+                bool isVersionAvailable = false;
+                string provider = null;
+
+
+                var DllMethodAvailabitityCheckerTaskResult = MCenterTask.CreateAndRunBasic(() => {
+                    isVersionAvailable = Methods.DllMethod.IsAvailable(systemDllVersion);
+
+                    if (!isVersionAvailable)
+                    {
+                        provider = Methods.DllMethod.IsAvailableOnThirdParty(systemDllVersion);
+                    }
+                }, "An error occured while checking version availability");
+                if (DllMethodAvailabitityCheckerTaskResult == InvokeResults.errorOccured)
+                {
+                    
+                    ReportProgress("Error occured last time while checking crack support for system dll",0);
+
+                    return;
+                }
+
+                if (isVersionAvailable || provider != null)
+                {
+                    var method = new Methods.DllMethod(systemDllVersion, provider);
+                    if (!method.IsDownloaded)
+                    {
+
+
+
+                        var DllMethodDownloaderTaskResult = MCenterTask.CreateAndRunBasic(() => method.Download(), "An error occured while download Dll method");
+                        if (DllMethodDownloaderTaskResult == InvokeResults.errorOccured)
+                        {
+                            
+                                ReportProgress( "Error occured last time while downloading cracked dll",0);
+
+                            return;
+                        }
+
+
+
+
+                    }
+
+
+
+
+                    var dllMethodInstallTaskResult = MCenterTask.CreateAndRunBasic(() => method.Install(), "An error occured while installing dll method");
+
+                    if (dllMethodInstallTaskResult == InvokeResults.errorOccured)
+                    {
+                        
+                            ReportProgress("Error occured last time while installing dll method",0);
+
+
+                        return;
+                    }
+
+
+                }
+                else
+                {
+                    var response = Methods.DllMethod.ShowIncompatibility(systemDllVersion);
+                    if (response == ErrorScreenResultEnum.retry) goto retry;
+
+                }
+            
+
+            }
+
+
+
+
+            bool DoAutoPatch(bool is64)
+            {
+                if(!Directory.Exists(Dllx64AutoPatchDir) && is64) Directory.CreateDirectory(Dllx64AutoPatchDir);
+                if (!Directory.Exists(Dllx86AutoPatchDir)) Directory.CreateDirectory(Dllx86AutoPatchDir);
+
+                if (File.Exists(Dllx64AutoPatch)) File.Delete(Dllx64AutoPatch);
+                if (File.Exists(Dllx86AutoPatch)) File.Delete(Dllx86AutoPatch);
+                File.Copy(Dllx64, is64 ? Dllx64AutoPatch : Dllx86AutoPatch);
+                if (is64) File.Copy(Dllx86, Dllx86AutoPatch);
+                if (is64) { 
+                    if(!MCentersLibrary.DllMethod.Patchx64Dll()) return false; }
+              return  MCentersLibrary.DllMethod.Patchx86Dll();
+            }
+
+            public static void InstallDllAutoPatch()
+            {
+                bool is64 = Environment.Is64BitProcess;
+
+                if (!MCenterTask.IsMCentersLibraryPresent()) return;
+                
+
+
+
+            retry:;
+                var systemDllVersion = "";
+
+                var systemDllVersionCheckTaskResult = MCenterTask.CreateAndRunBasic(() => { systemDllVersion = GetVersion(); }, "An error occured while fetching system dll version");
+                if (systemDllVersionCheckTaskResult == InvokeResults.errorOccured)
+                {
+                    ReportProgress("Error occured last time while checking system dll version", 0);
+
+
+                    return;
+                }
+
+
+
+
+
+                
+                bool isPlatformSupported = false;
+
+                var DllMethodAvailabitityCheckerTaskResult = MCenterTask.CreateAndRunBasic(() => {
+                    var platform = 0;
+                    
+                        platform = MCentersLibrary.DllMethod.GetPlatform(Dllx64);
+                    
+                    
+                    if (platform == 0 || (is64 && platform == 2)) return;
+                    if (!is64)
+                    {
+                        isPlatformSupported=true;
+                        return;
+                    }
+                    platform = MCentersLibrary.DllMethod.GetPlatform(Dllx86);
+                    if(platform!=2) return;
+                    isPlatformSupported = true;
+                    return;
+                   
+                }, "An error occured while checking platform of DLLs");
+                if (DllMethodAvailabitityCheckerTaskResult == InvokeResults.errorOccured)
+                {
+
+                    ReportProgress("Error occured last time while checking platform of DLLs", 0);
+
+                    return;
+                }
+
+                if (isPlatformSupported)
+                {
+                    var method = new Methods.DllMethod(systemDllVersion,null,true);
+
+                    bool wasPatchSuccess = false;
+
+                        var DllMethodDownloaderTaskResult = MCenterTask.CreateAndRunBasic(() =>wasPatchSuccess= method.DoAutoPatch(is64), "An error occured while patching DLLs");
+                        if (DllMethodDownloaderTaskResult == InvokeResults.errorOccured|| wasPatchSuccess==false)
+                        {
+
+                            ReportProgress("Error occured last time while creating cracked dll", 0);
+
+                            return;
+                        }
+
+
+
+
+                    
+
+
+
+
+                    var dllMethodInstallTaskResult = MCenterTask.CreateAndRunBasic(() => method.Install(), "An error occured while installing dll method");
+
+                    if (dllMethodInstallTaskResult == InvokeResults.errorOccured)
+                    {
+
+                        ReportProgress("Error occured last time while installing dll method", 0);
+
+
+                        return;
+                    }
+
+
+                }
+                else
+                {
+                    var response = Methods.DllMethod.ShowIncompatibility(systemDllVersion);
+                    if (response == ErrorScreenResultEnum.retry) goto retry;
+
+                }
+
+
+            }
+
+
+            public static  void UninstallMode()
+            {
+
+               
+              var  result = MCenterTask.CreateAndRunBasic(() => Uninstall(), "An error occured while uninstalling Mod");
+
+                if (result == InvokeResults.errorOccured)
+                {
+                    
+                    ReportProgress("Error occured last time while uninstalling dll method", 0);
+                };
+
+
+            }
+
+
         }
     }
 }

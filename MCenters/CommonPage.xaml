@@ -33,42 +33,42 @@
                 <SolidColorBrush Color="WhiteSmoke" Opacity="0.006"/>
             </Grid.Background>
             <Border  Margin="100"  Background="White" BorderThickness="1" BorderBrush="Black" Padding="10">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="100*"/>
-                    <ColumnDefinition Width="400*"/>
-                    <ColumnDefinition Width="100*"/>
-                    <ColumnDefinition Width="10*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="40*"/>
-                    <RowDefinition Height="210*"/>
-                    <RowDefinition Height="40*"/>
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="DialogTitle" FontSize="24" Text="Dialog Title" FontWeight="Bold" TextAlignment="Center" Grid.Column="1" Grid.ColumnSpan="3"/>
-                <TextBlock x:Name="DialogDescription" Margin="0,10,0,0" Text="Dialog Description" Grid.Column="1" Grid.ColumnSpan="3"  Grid.Row="1" />
-                <Button x:Name="DialogCancelButton" Grid.Row="2"  Grid.Column="1" Style="{DynamicResource ButtonRoundRevealStyle}" Content="Cancel"   OpacityMask="Magenta"  
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="120*"/>
+                        <ColumnDefinition Width="320*"/>
+                        <ColumnDefinition Width="120*"/>
+                        <ColumnDefinition Width="9*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40*"/>
+                        <RowDefinition Height="210*"/>
+                        <RowDefinition Height="40*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="DialogTitle" FontSize="24" Text="Dialog Title" FontWeight="Bold" TextAlignment="Center" Grid.Column="1" Grid.ColumnSpan="3"/>
+                    <TextBlock x:Name="DialogDescription" Margin="0,10,0,31" Text="Dialog Description" TextWrapping="Wrap" Grid.Column="1" Grid.ColumnSpan="3"  Grid.Row="1" Grid.RowSpan="2" />
+                    <Button x:Name="DialogCancelButton" Grid.Row="2"  Grid.Column="1" Style="{DynamicResource ButtonRoundRevealStyle}" Content="Cancel"   OpacityMask="Magenta"  
         fw:RevealElement.BorderRadius="10" Click="DialogCancelButton_Click">
-                    <fw:RevealElement.MouseOverBackground>
-                        <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
-                    </fw:RevealElement.MouseOverBackground>
-                    <Button.Background>
-                        <SolidColorBrush Color="#FF4CC2FF" Opacity="0.0"/>
-                    </Button.Background>
+                        <fw:RevealElement.MouseOverBackground>
+                            <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+                        </fw:RevealElement.MouseOverBackground>
+                        <Button.Background>
+                            <SolidColorBrush Color="#FF4CC2FF" Opacity="0.0"/>
+                        </Button.Background>
 
-                </Button>
-                <Button x:Name="DialogOkButton" Grid.Row="2"  Grid.Column="3" Style="{DynamicResource ButtonRoundRevealStyle}" Content="OK"   OpacityMask="Magenta"  
+                    </Button>
+                    <Button x:Name="DialogOkButton" Grid.Row="2"  Grid.Column="3" Style="{DynamicResource ButtonRoundRevealStyle}" Content="OK"   OpacityMask="Magenta"  
 fw:RevealElement.BorderRadius="10" Click="DialogOkButton_Click">
-                    <fw:RevealElement.MouseOverBackground>
-                        <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
-                    </fw:RevealElement.MouseOverBackground>
-                    <Button.Background>
-                        <SolidColorBrush Color="#FF4CC2FF" Opacity="0.0"/>
-                    </Button.Background>
+                        <fw:RevealElement.MouseOverBackground>
+                            <SolidColorBrush Color="#FF4CC2FF" Opacity="0.5"/>
+                        </fw:RevealElement.MouseOverBackground>
+                        <Button.Background>
+                            <SolidColorBrush Color="#FF4CC2FF" Opacity="0.0"/>
+                        </Button.Background>
 
-                </Button>
-            </Grid>
+                    </Button>
+                </Grid>
             </Border>
         </Grid>
         <Grid x:Name="FrontContent" Grid.RowSpan="2">

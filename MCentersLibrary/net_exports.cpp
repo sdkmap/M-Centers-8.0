@@ -27,6 +27,10 @@ namespace MCentersLibrary {
 	public: static int GetPlatform(System::String^ dllFilePath) {
 		return MCentersNative::DllMethod::GetPlatform(marshal_as<std::string>(dllFilePath));
     }
+
+	public: static bool IsPresent() {
+		return MCentersNative::DllMethod::IsPresent();
+	}
 	};
 
 }

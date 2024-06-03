@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace MCenters
 {
@@ -41,6 +42,32 @@ namespace MCenters
                 }
             }
         }
+
+       public static int FindStringPosition(byte[] byteArray, string searchString)
+        {
+            // Convert the search string to ASCII bytes
+            byte[] searchBytes = Encoding.ASCII.GetBytes(searchString);
+
+            // Iterate through the byte array to search for the string
+            for (int i = 0; i <= byteArray.Length - searchBytes.Length; i++)
+            {
+                bool match = true;
+                for (int j = 0; j < searchBytes.Length; j++)
+                {
+                    if (byteArray[i + j] != searchBytes[j])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match)
+                {
+                    return i; // Return position of the string
+                }
+            }
+            return -1; // String not found
+        }
+
     }
     public class ColorBrushConverter : IValueConverter
     {
