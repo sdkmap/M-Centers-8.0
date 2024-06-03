@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: wpf-app-x64
-        path: Releases/x64/executable
+        path: .
 
   build-x86:
     runs-on: windows-latest
@@ -44,21 +44,22 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup .NET Framework SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v4.0.0
       with:
         dotnet-version: 5.0.x
 
     - name: setup-msbuild
       uses: microsoft/setup-msbuild@v2
-
+            
+      
     - name: Restore NuGet Packages
-      run: nuget restore MCenters\MCenters.csproj
+      run: nuget restore "M Centers 8.0.sln"
 
     - name: Build WPF Application (x86)
-      run: msbuild "M Centers 8.0.sln" /p:Configuration=Release /p:Platform=x86 /t:Rebuild
+      run: msbuild "M Centers 8.0.sln" /p:Configuration=Release /p:Platform=x64 /t:Rebuild
 
     - name: Publish Artifact (x86)
       uses: actions/upload-artifact@v2
       with:
         name: wpf-app-x86
-        path: Releases/x86/executable
+        path: .
